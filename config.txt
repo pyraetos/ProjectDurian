@@ -1,0 +1,3 @@
+serverHostName: pyraetos.net
+serverPort: 1337
+multiplayer: false
