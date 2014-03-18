@@ -27,6 +27,7 @@ import net.pyraetos.durian.entity.Player;
 import net.pyraetos.durian.server.Packet;
 import net.pyraetos.durian.server.PacketJoinMe;
 import net.pyraetos.util.Config;
+import net.pyraetos.util.Images;
 import net.pyraetos.util.Sys;
 
 public class Durian extends JPanel implements Runnable{
@@ -57,6 +58,9 @@ public class Durian extends JPanel implements Runnable{
 	 * 
 	 * Server:
 	 * -	PacketTileset needs to include offsetX and offsetY
+	 * 
+	 * Util:
+	 * -	Images needs to use absolute path
 	 */
 	
 	public Durian(Container container){
@@ -69,8 +73,9 @@ public class Durian extends JPanel implements Runnable{
 		gameHeight = FRAME_HEIGHT / 50 - 1;
 		config = new Config("config.txt");
 		container.addKeyListener(new PyroKeyAdapter());
-		setStatus("Loading...");
 		Sys.thread(this);
+		setStatus("Loading...");
+		Images.fromLocalImages();
 		boolean multiplayer = config.getBoolean("multiplayer", false);
 		serverHostName = config.getString("serverHostName", "pyraetos.net");
 		serverPort = config.getInt("serverPort", 1337);
