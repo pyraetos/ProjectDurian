@@ -51,6 +51,13 @@ public class Durian extends JPanel implements Runnable{
 	private static int serverPort;
 	private static Queue<Packet> queue;
 	
+	/*
+	 * ProjectDurian TODO List
+	 * ***********************
+	 * 
+	 * Server:
+	 * -	PacketTileset needs to include offsetX and offsetY
+	 */
 	
 	public Durian(Container container){
 		setFocusable(true);
