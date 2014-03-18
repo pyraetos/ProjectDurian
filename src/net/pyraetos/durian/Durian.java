@@ -64,11 +64,12 @@ public class Durian extends JPanel implements Runnable{
 		container.addKeyListener(new PyroKeyAdapter());
 		setStatus("Loading...");
 		Sys.thread(this);
-		if(config.getBoolean("multiplayer", false)){
-			serverHostName = config.getString("serverHostName", "pyraetos.net");
-			serverPort = config.getInt("serverPort", 1337);
+		boolean multiplayer = config.getBoolean("multiplayer", false);
+		serverHostName = config.getString("serverHostName", "pyraetos.net");
+		serverPort = config.getInt("serverPort", 1337);
+		if(multiplayer)
 			Sys.thread(new ConnectThread());
-		}else
+		else
 			playOffline();
 	}
 	
