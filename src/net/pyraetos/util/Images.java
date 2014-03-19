@@ -22,38 +22,25 @@ public abstract class Images{
 	}
 	
 	public static void fromLocal(){
-		fromDirectory("");
+		fromURL("file:///" + System.getProperty("user.dir").replace("\\", "/"));
 	}
 	
 	public static void fromLocalImages(){
-		fromDirectory("images" + File.separator);
+		fromURL("file:///" + System.getProperty("user.dir").replace("\\", "/") + "/images/");
 	}
 	
-	public static void fromDirectory(String dir){
-		prefix = dir = dir.replace("\\", "/") + (dir.endsWith(File.separator) ? "" : File.separator);
-	}
-	
-	/**
-	 * remember to include protocol
-	 */
 	public static void fromURL(String url){
-		prefix = "url-" + url + (url.endsWith("/") ? "" : "/");
+		prefix = url + (url.endsWith("/") ? "" : "/");
 	}
-	
+
 	/**
 	 * Attempts by default to retrieve from the current working directory
 	 */
 	public static Image retrieve(String file){
 		if(!loadedImages.containsKey(file)){
 			try{
-				Image image;
-				if(prefix.startsWith("url-")){
-					URL url = new URL(prefix.substring(4) + file);
-					image = ImageIO.read(url);
-				}else{
-					File f = new File(prefix + file);
-					image = ImageIO.read(f);
-				}
+				URL url = new URL(prefix + file);
+				Image image = ImageIO.read(url);
 				loadedImages.put(file, image);
 			}catch(Exception e){
 				Sys.debug(e.getMessage());

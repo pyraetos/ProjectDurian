@@ -59,7 +59,7 @@ public abstract class Tileset extends TileConstants{
 		double c = tileGet(tx - side / 2, ty - side / 2);
 		double d = tileGet(tx - side / 2, ty + side / 2);
 		double average = (a + b + c + d) / 4;
-		double value = average + scale * gen(tx, ty);
+		double value = average + scale * coeff(tx, ty);
 		tileSet(tx, ty, value);
 	}
 	
@@ -99,12 +99,17 @@ public abstract class Tileset extends TileConstants{
 			num++;
 		}
 		average /= num;
-		return average + scale * gen(tx, ty);
+		return average + scale * coeff(tx, ty);
 	}
 
+	private static double coeff(int tx, int ty){
+		Random random = new Random(seed * 17717171L + tx * 22222223L + ty * 111181111L);
+		return 4 * random.nextDouble() - 2;
+	}
+	
 	private static double gen(int tx, int ty){
 		Random random = new Random(seed * 17717171L + tx * 22222223L + ty * 111181111L);
-		return -1 + 2 * random.nextDouble();
+		return 4 * random.nextDouble();
 	}
 	
 	public static TileRegion getRegion(int rx, int ry){
