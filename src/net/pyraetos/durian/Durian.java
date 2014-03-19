@@ -59,8 +59,8 @@ public class Durian extends JPanel implements Runnable{
 	 * Server:
 	 * -	PacketTileset needs to include offsetX and offsetY
 	 * 
-	 * Util:
-	 * -	Images needs to use absolute path
+	 * Tileset:
+	 * -	Seed is constant
 	 */
 	
 	public Durian(Container container){
@@ -75,7 +75,7 @@ public class Durian extends JPanel implements Runnable{
 		container.addKeyListener(new PyroKeyAdapter());
 		Sys.thread(this);
 		setStatus("Loading...");
-		Images.fromLocalImages();
+		Images.fromPyraetosNet();
 		boolean multiplayer = config.getBoolean("multiplayer", false);
 		serverHostName = config.getString("serverHostName", "pyraetos.net");
 		serverPort = config.getInt("serverPort", 1337);
