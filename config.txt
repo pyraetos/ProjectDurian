@@ -1,3 +1,9 @@
 serverHostName: pyraetos.net
+
+# Accepts numbers, strings, and "random" (without quotes)
+seed: random
+
 serverPort: 1337
+
 multiplayer: false
+

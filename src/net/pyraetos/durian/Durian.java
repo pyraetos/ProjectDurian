@@ -86,11 +86,23 @@ public class Durian extends JPanel implements Runnable{
 	}
 	
 	private static void playOffline(){
+		parseSeed();
 		Tileset.generate(0, 0);
 		player = new Player(5, 5);
 		player.assign(nextEntityUID++);
 		Entity.addEntity(player);
 		setStatus("Playing offline!");
+	}
+	
+	private static void parseSeed(){
+		String s = config.getString("seed", "random");
+		config.comment("seed", "Accepts numbers, strings, and \"random\" (without quotes)");
+		if(!s.equalsIgnoreCase("random"))
+		try{
+			Tileset.setSeed(Long.parseLong(s));
+		}catch(Exception e){
+			Tileset.setSeed(s.hashCode());
+		}
 	}
 	
 	@Override

@@ -14,6 +14,7 @@ import java.util.Map;
 public class Config{
 
 	private Map<String, String> map;
+	private Map<String, String> comments;
 	private File file;
 	
 	public Config(String dir){
@@ -30,11 +31,23 @@ public class Config{
 
 	public void reload(){
 		try{
+			map = new HashMap<String, String>();
+			comments = new HashMap<String, String>();
 			BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
 			String raw = in.readLine();
+			String comment = null;
 			while(raw != null){
-				String[] split = raw.split(":");
-				map.put(split[0].trim(), split[1].trim());
+				if(!raw.isEmpty())
+				if(raw.startsWith("# "))
+					comment = raw.substring(2);
+				else{
+					String[] split = raw.split(":");
+					if(comment != null){
+						comments.put(split[0].trim(), comment);
+						comment = null;
+					}
+					map.put(split[0].trim(), split[1].trim());
+				}
 				raw = in.readLine();
 			}
 			in.close();
@@ -48,8 +61,12 @@ public class Config{
 			file.delete();
 			file.createNewFile();
 			PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file)));
-			for(String key : map.keySet())
+			for(String key : map.keySet()){
+				if(comments.containsKey(key))
+					out.println("# " + comments.get(key));
 				out.println(key + ": " + map.get(key));
+				out.println();
+			}
 			out.flush();
 			out.close();
 		}catch(IOException e){
@@ -57,6 +74,11 @@ public class Config{
 		}
 	}
 
+	public void comment(String key, String comment){
+		comments.put(key, comment);
+		save();
+	}
+	
 	public String getString(String key, String defaultValue){
 		if(!map.containsKey(key)){
 			map.put(key, defaultValue);

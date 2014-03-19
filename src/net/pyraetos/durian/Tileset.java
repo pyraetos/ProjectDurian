@@ -9,12 +9,16 @@ import net.pyraetos.util.Sys;
 public abstract class Tileset extends TileConstants{
 
 	private static LinkedList<LinkedList<TileRegion>> tr = new LinkedList<LinkedList<TileRegion>>();
-	private static long seed = 2;
+	private static long seed = Sys.randomSeed();
 	private static int offsetX;
 	private static int offsetY;
 	
 	public static void setSeed(long seed){
 		Tileset.seed = seed;
+	}
+	
+	public static long getSeed(){
+		return seed;
 	}
 	
 	public static void generate(int rx, int ry){
