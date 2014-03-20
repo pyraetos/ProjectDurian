@@ -12,6 +12,7 @@ public abstract class Tileset extends TileConstants{
 	private static long seed = Sys.randomSeed();
 	private static int offsetX;
 	private static int offsetY;
+	private static float s = 1.0f;
 	
 	public static void setSeed(long seed){
 		Tileset.seed = seed;
@@ -21,13 +22,17 @@ public abstract class Tileset extends TileConstants{
 		return seed;
 	}
 	
+	public static void setEntropy(float s){
+		Tileset.s = s;
+	}
+	
 	public static void generate(int rx, int ry){
 		int tx = rx * 8;
 		int ty = ry * 8;
 		initGen(tx, ty);
 		for(int side = 8; side >= 2; side /= 2){
 			int res = 8 / side;
-			double scale = 1d / Math.pow(res, 3);
+			float scale = (float)(s / Math.pow(res, 3/s));
 			for(int i = 0; i < res; i++){
 				for(int j = 0; j < res; j++){
 					int a = (int)(tx + side * ((1d + 2d * i) / 2d));
@@ -56,18 +61,18 @@ public abstract class Tileset extends TileConstants{
 			tileSet(tx, ty + 8, gen(tx, ty + 8));
 	}
 	
-	private static void diamondStep(int tx, int ty, int side, double scale){
+	private static void diamondStep(int tx, int ty, int side, float scale){
 		if(hasTile(tx, ty)) return;
-		double a = tileGet(tx + side / 2, ty - side / 2);
-		double b = tileGet(tx + side / 2, ty + side / 2);
-		double c = tileGet(tx - side / 2, ty - side / 2);
-		double d = tileGet(tx - side / 2, ty + side / 2);
-		double average = (a + b + c + d) / 4;
-		double value = average + scale * coeff(tx, ty);
+		float a = tileGet(tx + side / 2, ty - side / 2);
+		float b = tileGet(tx + side / 2, ty + side / 2);
+		float c = tileGet(tx - side / 2, ty - side / 2);
+		float d = tileGet(tx - side / 2, ty + side / 2);
+		float average = (a + b + c + d) / 4;
+		float value = average + scale * coeff(tx, ty);
 		tileSet(tx, ty, value);
 	}
 	
-	private static void squareStep(int tx, int ty, int side, double scale){
+	private static void squareStep(int tx, int ty, int side, float scale){
 		int half = side / 2;
 		if(!hasTile(tx + half, ty))
 			tileSet(tx + half, ty, squareCalculation(tx + half, ty, half, scale));
@@ -79,10 +84,10 @@ public abstract class Tileset extends TileConstants{
 			tileSet(tx, ty - half, squareCalculation(tx, ty - half, half, scale));
 	}
 	
-	private static double squareCalculation(int tx, int ty, int half, double scale){
-		double average = 0;
-		double num = 0;
-		double val = tileGet(tx - half, ty);
+	private static float squareCalculation(int tx, int ty, int half, float scale){
+		float average = 0;
+		float num = 0;
+		float val = tileGet(tx - half, ty);
 		if(val != NULL){
 			average += val;
 			num++;
@@ -106,14 +111,14 @@ public abstract class Tileset extends TileConstants{
 		return average + scale * coeff(tx, ty);
 	}
 
-	private static double coeff(int tx, int ty){
+	private static float coeff(int tx, int ty){
 		Random random = new Random(seed * 17717171L + tx * 22222223L + ty * 111181111L);
-		return 4 * random.nextDouble() - 2;
+		return -1  + 2 * random.nextFloat();
 	}
 	
-	private static double gen(int tx, int ty){
+	private static float gen(int tx, int ty){
 		Random random = new Random(seed * 17717171L + tx * 22222223L + ty * 111181111L);
-		return 4 * random.nextDouble();
+		return 4 * random.nextFloat();
 	}
 	
 	public static TileRegion getRegion(int rx, int ry){
@@ -157,18 +162,18 @@ public abstract class Tileset extends TileConstants{
 		return b;
 	}
 
-	public static double tileGet(int tx, int ty){
+	public static float tileGet(int tx, int ty){
 		TileRegion r = getRegion(toRegionCoordinate(tx), toRegionCoordinate(ty));
-		return r.get(Math.abs(tx) % 8, Math.abs(ty) % 8);
+		return (float)r.get(Math.abs(tx) % 8, Math.abs(ty) % 8);
 	}
 
 	public static void setTile(int tx, int ty, byte b){
-		tileSet(tx, ty, (double)b);
+		tileSet(tx, ty, (float)b);
 	}
 	
-	private static void tileSet(int tx, int ty, double d){
+	private static void tileSet(int tx, int ty, float f){
 		TileRegion r = getRegion(toRegionCoordinate(tx), toRegionCoordinate(ty));
-		r.set(Math.abs(tx) % 8, Math.abs(ty) % 8, d);
+		r.set(Math.abs(tx) % 8, Math.abs(ty) % 8, f);
 	}
 	
 	public static boolean hasTile(int tx, int ty){

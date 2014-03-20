@@ -1,6 +1,9 @@
 serverHostName: pyraetos.net
 
-# Accepts numbers, strings, and "random" (without quotes)
+# Does not affect seed. Must be > 0.
+entropy: 1.0
+
+# Does not affect entropy. Special values: random
 seed: random
 
 serverPort: 1337

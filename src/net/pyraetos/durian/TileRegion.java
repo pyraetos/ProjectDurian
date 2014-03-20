@@ -2,11 +2,10 @@ package net.pyraetos.durian;
 
 public class TileRegion extends TileConstants{
 
-	private double[][] tiles;
+	private float[][] tiles;
 	
 	public TileRegion(){
-
-		tiles = new double[9][9];
+		tiles = new float[9][9];
 		for(int i = 0; i < 9; i++)
 			for(int j = 0; j < 9; j++)
 				tiles[i][j] = NULL;
@@ -20,9 +19,9 @@ public class TileRegion extends TileConstants{
 		}
 	}
 	
-	public void set(int x, int y, double d){
+	public void set(int x, int y, float f){
 		try{
-			tiles[x][y] = d;
+			tiles[x][y] = f;
 		}catch(Exception e){}
 	}
 }

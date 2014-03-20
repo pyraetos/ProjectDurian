@@ -75,6 +75,8 @@ public class Config{
 	}
 
 	public void comment(String key, String comment){
+		if(comment.equals(comments.get(key)))
+			return;
 		comments.put(key, comment);
 		save();
 	}

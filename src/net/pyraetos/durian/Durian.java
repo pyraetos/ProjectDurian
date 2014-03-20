@@ -86,7 +86,9 @@ public class Durian extends JPanel implements Runnable{
 	}
 	
 	private static void playOffline(){
-		parseSeed();
+		Tileset.setSeed(parseSeed());
+		Tileset.setEntropy(config.getFloat("entropy", 1.0f));
+		config.comment("entropy", "Does not affect seed. Must be > 0.");
 		Tileset.generate(0, 0);
 		player = new Player(5, 5);
 		player.assign(nextEntityUID++);
@@ -94,15 +96,16 @@ public class Durian extends JPanel implements Runnable{
 		setStatus("Playing offline!");
 	}
 	
-	private static void parseSeed(){
+	private static long parseSeed(){
 		String s = config.getString("seed", "random");
-		config.comment("seed", "Accepts numbers, strings, and \"random\" (without quotes)");
+		config.comment("seed", "Does not affect entropy. Special values: random");
 		if(!s.equalsIgnoreCase("random"))
 		try{
-			Tileset.setSeed(Long.parseLong(s));
+			return Long.parseLong(s);
 		}catch(Exception e){
-			Tileset.setSeed(s.hashCode());
+			return s.hashCode();
 		}
+		else return Sys.randomSeed();
 	}
 	
 	@Override
