@@ -1,12 +1,8 @@
 package net.pyraetos.durian;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Random;
-import java.util.Set;
-
 import net.pyraetos.durian.entity.Entity;
-import net.pyraetos.util.Point;
 import net.pyraetos.util.Sys;
 
 public abstract class Tileset extends TileConstants{
@@ -29,12 +25,9 @@ public abstract class Tileset extends TileConstants{
 		Tileset.s = s;
 	}
 
-	public static Set<Point> nodes = new HashSet<Point>();
-
 	public static void generate(int rx, int ry){
 		int tx = rx * 8;
 		int ty = ry * 8;
-		nodes.add(new Point(tx, ty));
 		initGen(tx, ty);
 		for(int side = 8; side >= 2; side /= 2){
 			int res = 8 / side;
@@ -57,10 +50,14 @@ public abstract class Tileset extends TileConstants{
 	}
 
 	private static void initGen(int tx, int ty){
-		tileSet(tx, ty, gen(tx, ty));
-		tileSet(tx + 8, ty, gen(tx + 8, ty));
-		tileSet(tx + 8, ty + 8, gen(tx + 8, ty + 8));
-		tileSet(tx, ty + 8, gen(tx, ty + 8));
+		Random random = new Random(seed * 17717171L + tx * 22222223L + ty * 111181111L);
+		tileSet(tx, ty, 4 * random.nextFloat());
+		random.setSeed(seed * 17717171L + (tx + 8) * 22222223L + ty * 111181111L);
+		tileSet(tx + 8, ty, 4 * random.nextFloat());
+		random.setSeed(seed * 17717171L + (tx + 8) * 22222223L + (ty + 8) * 111181111L);
+		tileSet(tx + 8, ty + 8, 4 * random.nextFloat());
+		random.setSeed(seed * 17717171L + tx * 22222223L + (ty + 8) * 111181111L);
+		tileSet(tx, ty + 8, 4 * random.nextFloat());
 	}
 
 	private static void diamondStep(int tx, int ty, int side, float scale){
@@ -116,11 +113,6 @@ public abstract class Tileset extends TileConstants{
 	private static float coeff(int tx, int ty){
 		Random random = new Random(seed * 17717171L + tx * 22222223L + ty * 111181111L);
 		return -1  + 2 * random.nextFloat();
-	}
-	
-	private static float gen(int tx, int ty){
-		Random random = new Random(seed * 17717171L + tx * 22222223L + ty * 111181111L);
-		return 4 * random.nextFloat();
 	}
 	
 	public static TileRegion getRegion(int rx, int ry){

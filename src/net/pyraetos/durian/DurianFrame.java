@@ -7,7 +7,7 @@ public class DurianFrame extends JFrame{
 	public DurianFrame(){
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setBounds(500, 100, Durian.FRAME_WIDTH + 6, Durian.FRAME_HEIGHT + 28);
-		setTitle("Battle");
+		setTitle("Project Durian");
 		setLayout(null);
 		setResizable(false);
 		setVisible(true);

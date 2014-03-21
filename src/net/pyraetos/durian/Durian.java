@@ -28,7 +28,6 @@ import net.pyraetos.durian.server.Packet;
 import net.pyraetos.durian.server.PacketJoinMe;
 import net.pyraetos.util.Config;
 import net.pyraetos.util.Images;
-import net.pyraetos.util.Point;
 import net.pyraetos.util.Sys;
 
 public class Durian extends JPanel implements Runnable{
@@ -76,7 +75,7 @@ public class Durian extends JPanel implements Runnable{
 		container.addKeyListener(new PyroKeyAdapter());
 		Sys.thread(this);
 		setStatus("Loading...");
-		Images.fromLocalImages();
+		Images.fromPyraetosNet();
 		boolean multiplayer = config.getBoolean("multiplayer", false);
 		serverHostName = config.getString("serverHostName", "pyraetos.net");
 		serverPort = config.getInt("serverPort", 1337);
@@ -153,9 +152,6 @@ public class Durian extends JPanel implements Runnable{
 				}
 				g.drawImage(Tileset.imageFor(type), (int)((x - screenX) * 50), (int)((y - screenY) * 50), null);
 			}
-		}
-		for(Point point : Tileset.nodes){
-			g.drawImage(Images.retrieve("node.png"), (int)(point.getX()-screenX)*50, (int)(point.getY()-screenY)*50, null);
 		}
 	}
 
