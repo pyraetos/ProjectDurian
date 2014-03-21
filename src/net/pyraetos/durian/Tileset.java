@@ -1,9 +1,12 @@
 package net.pyraetos.durian;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.Set;
 
 import net.pyraetos.durian.entity.Entity;
+import net.pyraetos.util.Point;
 import net.pyraetos.util.Sys;
 
 public abstract class Tileset extends TileConstants{
@@ -21,14 +24,17 @@ public abstract class Tileset extends TileConstants{
 	public static long getSeed(){
 		return seed;
 	}
-	
+
 	public static void setEntropy(float s){
 		Tileset.s = s;
 	}
-	
+
+	public static Set<Point> nodes = new HashSet<Point>();
+
 	public static void generate(int rx, int ry){
 		int tx = rx * 8;
 		int ty = ry * 8;
+		nodes.add(new Point(tx, ty));
 		initGen(tx, ty);
 		for(int side = 8; side >= 2; side /= 2){
 			int res = 8 / side;
@@ -49,18 +55,14 @@ public abstract class Tileset extends TileConstants{
 			}
 		}
 	}
-	
+
 	private static void initGen(int tx, int ty){
-		if(getTile(tx, ty) == NULL)
-			tileSet(tx, ty, gen(tx, ty));
-		if(getTile(tx + 8, ty) == NULL)
-			tileSet(tx + 8, ty, gen(tx + 8, ty));
-		if(getTile(tx + 8, ty + 8) == NULL)
-			tileSet(tx + 8, ty + 8, gen(tx + 8, ty + 8));
-		if(getTile(tx, ty + 8) == NULL)
-			tileSet(tx, ty + 8, gen(tx, ty + 8));
+		tileSet(tx, ty, gen(tx, ty));
+		tileSet(tx + 8, ty, gen(tx + 8, ty));
+		tileSet(tx + 8, ty + 8, gen(tx + 8, ty + 8));
+		tileSet(tx, ty + 8, gen(tx, ty + 8));
 	}
-	
+
 	private static void diamondStep(int tx, int ty, int side, float scale){
 		if(hasTile(tx, ty)) return;
 		float a = tileGet(tx + side / 2, ty - side / 2);
@@ -71,7 +73,7 @@ public abstract class Tileset extends TileConstants{
 		float value = average + scale * coeff(tx, ty);
 		tileSet(tx, ty, value);
 	}
-	
+
 	private static void squareStep(int tx, int ty, int side, float scale){
 		int half = side / 2;
 		if(!hasTile(tx + half, ty))
@@ -83,7 +85,7 @@ public abstract class Tileset extends TileConstants{
 		if(!hasTile(tx, ty - half))
 			tileSet(tx, ty - half, squareCalculation(tx, ty - half, half, scale));
 	}
-	
+
 	private static float squareCalculation(int tx, int ty, int half, float scale){
 		float average = 0;
 		float num = 0;

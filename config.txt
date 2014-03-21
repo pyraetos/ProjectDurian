@@ -4,7 +4,7 @@ serverHostName: pyraetos.net
 entropy: 1.0
 
 # Does not affect entropy. Special values: random
-seed: random
+seed: ranom
 
 serverPort: 1337
 

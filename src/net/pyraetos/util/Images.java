@@ -1,6 +1,7 @@
 package net.pyraetos.util;
 
 import java.awt.Image;
+import java.io.File;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,11 +40,12 @@ public abstract class Images{
 		if(!loadedImages.containsKey(file)){
 			try{
 				URL url = new URL(prefix + file);
-				Image image = ImageIO.read(url);
+				File f = new File(url.getFile());
+				Image image = ImageIO.read(f);
 				loadedImages.put(file, image);
 			}catch(Exception e){
-				Sys.debug(e.getMessage());
 				Sys.debug("Path: " + prefix + file);
+				e.printStackTrace();
 				return null;
 			}
 		}
