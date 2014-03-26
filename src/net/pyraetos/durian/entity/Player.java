@@ -38,7 +38,7 @@ public class Player extends MovingEntity{
 			y = Sys.round(y + dy / 50);
 			Sys.sleep(1);
 		}
-		Durian.setStatus(x + ", " + y + ": " + Tileset.tileGet((int)x, (int)y));
+		Durian.setStatus("Point: " + x + ", " + y + " Value: " + Tileset.tileGet((int)x, (int)y) + " Type: " + Tileset.getTile((int)x, (int)y));
 		moving = false;
 		dx = dy = 0;
 	}
