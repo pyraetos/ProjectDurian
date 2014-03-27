@@ -2,7 +2,6 @@ package net.pyraetos.durian;
 
 import java.util.LinkedList;
 import java.util.Random;
-
 import net.pyraetos.durian.entity.Entity;
 import net.pyraetos.util.Sys;
 
@@ -29,70 +28,91 @@ public abstract class Tileset extends TileConstants{
 	public static void generate(int rx, int ry){
 		int tx = rx * 8;
 		int ty = ry * 8;
-		tileSet(tx, ty, 1 + 4 * getBaseValue(tx, ty));
-		tileSet(tx + 8, ty, 1 + 4 * getBaseValue(tx + 8, ty));
-		tileSet(tx + 8, ty + 8, 1 + 4 * getBaseValue(tx + 8, ty + 8));
-		tileSet(tx, ty + 8, 1 + 4 * getBaseValue(tx, ty + 8));
+		initGen(tx, ty);
 		for(int side = 8; side >= 2; side /= 2){
 			int res = 8 / side;
-			int half = side / 2;
 			float scale = (float)(s / Math.pow(res, 3/s));
 			for(int i = 0; i < res; i++){
 				for(int j = 0; j < res; j++){
-					int a = (int)(tx + side * ((1f + 2f * i) / 2f));
-					int b = (int)(ty + side * ((1f + 2f * j) / 2f));
+					int a = (int)(tx + side * ((1d + 2d * i) / 2d));
+					int b = (int)(ty + side * ((1d + 2d * j) / 2d));
 					diamondStep(a, b, side, scale);
 				}
 			}
 			for(int i = 0; i < res; i++){
 				for(int j = 0; j < res; j++){
-					int a = (int)(tx + side * ((1f + 2f * i) / 2f));
-					int b = (int)(ty + side * ((1f + 2f * j) / 2f));
-					squareStep(tx, ty, a + half, b, half, scale);
-					squareStep(tx, ty, a, b + half, half, scale);
-					squareStep(tx, ty, a - half, b, half, scale);
-					squareStep(tx, ty, a, b - half, half, scale);
+					int a = (int)(tx + side * ((1d + 2d * i) / 2d));
+					int b = (int)(ty + side * ((1d + 2d * j) / 2d));
+					squareStep(a, b, side, scale);
 				}
 			}
 		}
 	}
 
+	private static void initGen(int tx, int ty){
+		Random random = new Random(seed * 17717171L + tx * 22222223L + ty * 111181111L);
+		tileSet(tx, ty, 4 * random.nextFloat());
+		random.setSeed(seed * 17717171L + (tx + 8) * 22222223L + ty * 111181111L);
+		tileSet(tx + 8, ty, 4 * random.nextFloat());
+		random.setSeed(seed * 17717171L + (tx + 8) * 22222223L + (ty + 8) * 111181111L);
+		tileSet(tx + 8, ty + 8, 4 * random.nextFloat());
+		random.setSeed(seed * 17717171L + tx * 22222223L + (ty + 8) * 111181111L);
+		tileSet(tx, ty + 8, 4 * random.nextFloat());
+	}
+
 	private static void diamondStep(int tx, int ty, int side, float scale){
+		if(hasTile(tx, ty)) return;
 		float a = tileGet(tx + side / 2, ty - side / 2);
 		float b = tileGet(tx + side / 2, ty + side / 2);
 		float c = tileGet(tx - side / 2, ty - side / 2);
 		float d = tileGet(tx - side / 2, ty + side / 2);
 		float average = (a + b + c + d) / 4;
-		tileSet(tx, ty, average + scale * (2 * getBaseValue(tx, ty) - 1));
+		float value = average + scale * coeff(tx, ty);
+		tileSet(tx, ty, value);
 	}
 
-	private static void squareStep(int rtx, int rty, int tx, int ty, int half, float scale){
-		if(hasTile(tx, ty)) return;
+	private static void squareStep(int tx, int ty, int side, float scale){
+		int half = side / 2;
+		if(!hasTile(tx + half, ty))
+			tileSet(tx + half, ty, squareCalculation(tx + half, ty, half, scale));
+		if(!hasTile(tx, ty + half))
+			tileSet(tx, ty + half, squareCalculation(tx, ty + half, half, scale));
+		if(!hasTile(tx - half, ty))
+			tileSet(tx - half, ty, squareCalculation(tx - half, ty, half, scale));
+		if(!hasTile(tx, ty - half))
+			tileSet(tx, ty - half, squareCalculation(tx, ty - half, half, scale));
+	}
+
+	private static float squareCalculation(int tx, int ty, int half, float scale){
 		float average = 0;
 		float num = 0;
-		if(tx - half >= rtx && tx - half <= rtx + 8 && ty >= rty && ty <= rty + 8){
-			average += tileGet(tx - half, ty);
+		float val = tileGet(tx - half, ty);
+		if(val != NULL){
+			average += val;
 			num++;
 		}
-		if(tx >= rtx && tx <= rtx + 8 && ty - half >= rty && ty - half <= rty + 8){
-			average += tileGet(tx, ty - half);
+		val = tileGet(tx, ty - half);
+		if(val != NULL){
+			average += val;
 			num++;
 		}
-		if(tx + half >= rtx && tx + half <= rtx + 8 && ty >= rty && ty <= rty + 8){
-			average += tileGet(tx + half, ty);
+		val = tileGet(tx + half, ty);
+		if(val != NULL){
+			average += val;
 			num++;
 		}
-		if(tx >= rtx && tx <= rtx + 8 && ty + half >= rty && ty + half <= rty + 8){
-			average += tileGet(tx, ty + half);
+		val = tileGet(tx, ty + half);
+		if(val != NULL){
+			average += val;
 			num++;
 		}
 		average /= num;
-		tileSet(tx, ty, average + scale * (2 * getBaseValue(tx, ty) - 1));
+		return average + scale * coeff(tx, ty);
 	}
-	
-	public static float getBaseValue(int tx, int ty){
+
+	private static float coeff(int tx, int ty){
 		Random random = new Random(seed * 17717171L + tx * 22222223L + ty * 111181111L);
-		return random.nextFloat();
+		return -1  + 2 * random.nextFloat();
 	}
 	
 	public static TileRegion getRegion(int rx, int ry){
@@ -128,10 +148,12 @@ public abstract class Tileset extends TileConstants{
 		}
 		tr.get(xx).set(yy, r);
 	}
-
+	
 	public static byte getTile(int tx, int ty){
-		float tile = tileGet(tx, ty);
-		return (byte)tile;
+		byte b = (byte)Math.round(tileGet(tx, ty));
+		if(b >= TREE) return TREE;
+		if(b <= WATER && b != NULL) return WATER;
+		return b;
 	}
 
 	public static float tileGet(int tx, int ty){
