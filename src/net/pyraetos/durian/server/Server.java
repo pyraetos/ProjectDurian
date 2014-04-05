@@ -33,7 +33,7 @@ public class Server extends ServerSocket implements Runnable{
 		System.out.println("Battle Server started on port " + port + "!");
 		connections = new HashSet<Connection>();
 		System.out.println("Generating tileset...");
-		Tileset.generate(0, 0);
+		//Tileset.generate();
 		System.out.println("Server online!");
 		Sys.thread(this);
 	}

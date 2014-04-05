@@ -7,11 +7,11 @@ import net.pyraetos.util.Sys;
 
 public abstract class Tileset extends TileConstants{
 
-	private static LinkedList<LinkedList<TileRegion>> tr = new LinkedList<LinkedList<TileRegion>>();
+	private static LinkedList<LinkedList<Double>> tr = new LinkedList<LinkedList<Double>>();
 	private static long seed = Sys.randomSeed();
 	private static int offsetX;
 	private static int offsetY;
-	private static float s = 1.0f;
+	private static double s = 1.0d;
 	
 	public static void setSeed(long seed){
 		Tileset.seed = seed;
@@ -21,165 +21,87 @@ public abstract class Tileset extends TileConstants{
 		return seed;
 	}
 
-	public static void setEntropy(float s){
+	public static void setEntropy(double s){
 		Tileset.s = s;
 	}
 
-	public static void generate(int rx, int ry){
-		int tx = rx * 8;
-		int ty = ry * 8;
-		initGen(tx, ty);
-		for(int side = 8; side >= 2; side /= 2){
-			int res = 8 / side;
-			float scale = (float)(s / Math.pow(res, 3/s));
-			for(int i = 0; i < res; i++){
-				for(int j = 0; j < res; j++){
-					int a = (int)(tx + side * ((1d + 2d * i) / 2d));
-					int b = (int)(ty + side * ((1d + 2d * j) / 2d));
-					diamondStep(a, b, side, scale);
-				}
-			}
-			for(int i = 0; i < res; i++){
-				for(int j = 0; j < res; j++){
-					int a = (int)(tx + side * ((1d + 2d * i) / 2d));
-					int b = (int)(ty + side * ((1d + 2d * j) / 2d));
-					squareStep(a, b, side, scale);
-				}
-			}
+	/**
+	 * Generates a single tile using the Pyraetos algorithm.
+	 * This method is fast, but may not appear as realistic as generate().
+	 * @author Pyraetos
+	 */
+	public static void pgenerate(int x, int y){
+		double value = pnoise(x, y);
+		double d = Math.floor(pnoise(x - 1, y));
+		if(Sys.equal(d, Math.floor(pnoise(x, y - 1)), Math.floor(pnoise(x, y + 1)), Math.floor(pnoise(x + 1, y)))){
+			value = Math.floor(d);
 		}
-	}
-
-	private static void initGen(int tx, int ty){
-		Random random = new Random(seed * 17717171L + tx * 22222223L + ty * 111181111L);
-		tileSet(tx, ty, 4 * random.nextFloat());
-		random.setSeed(seed * 17717171L + (tx + 8) * 22222223L + ty * 111181111L);
-		tileSet(tx + 8, ty, 4 * random.nextFloat());
-		random.setSeed(seed * 17717171L + (tx + 8) * 22222223L + (ty + 8) * 111181111L);
-		tileSet(tx + 8, ty + 8, 4 * random.nextFloat());
-		random.setSeed(seed * 17717171L + tx * 22222223L + (ty + 8) * 111181111L);
-		tileSet(tx, ty + 8, 4 * random.nextFloat());
-	}
-
-	private static void diamondStep(int tx, int ty, int side, float scale){
-		if(hasTile(tx, ty)) return;
-		float a = tileGet(tx + side / 2, ty - side / 2);
-		float b = tileGet(tx + side / 2, ty + side / 2);
-		float c = tileGet(tx - side / 2, ty - side / 2);
-		float d = tileGet(tx - side / 2, ty + side / 2);
-		float average = (a + b + c + d) / 4;
-		float value = average + scale * coeff(tx, ty);
-		tileSet(tx, ty, value);
-	}
-
-	private static void squareStep(int tx, int ty, int side, float scale){
-		int half = side / 2;
-		if(!hasTile(tx + half, ty))
-			tileSet(tx + half, ty, squareCalculation(tx + half, ty, half, scale));
-		if(!hasTile(tx, ty + half))
-			tileSet(tx, ty + half, squareCalculation(tx, ty + half, half, scale));
-		if(!hasTile(tx - half, ty))
-			tileSet(tx - half, ty, squareCalculation(tx - half, ty, half, scale));
-		if(!hasTile(tx, ty - half))
-			tileSet(tx, ty - half, squareCalculation(tx, ty - half, half, scale));
-	}
-
-	private static float squareCalculation(int tx, int ty, int half, float scale){
-		float average = 0;
-		float num = 0;
-		float val = tileGet(tx - half, ty);
-		if(val != NULL){
-			average += val;
-			num++;
-		}
-		val = tileGet(tx, ty - half);
-		if(val != NULL){
-			average += val;
-			num++;
-		}
-		val = tileGet(tx + half, ty);
-		if(val != NULL){
-			average += val;
-			num++;
-		}
-		val = tileGet(tx, ty + half);
-		if(val != NULL){
-			average += val;
-			num++;
-		}
-		average /= num;
-		return average + scale * coeff(tx, ty);
-	}
-
-	private static float coeff(int tx, int ty){
-		Random random = new Random(seed * 17717171L + tx * 22222223L + ty * 111181111L);
-		return -1  + 2 * random.nextFloat();
+		tileSet(x, y, value);
 	}
 	
-	public static TileRegion getRegion(int rx, int ry){
-		try{
-			TileRegion r = tr.get(rx + offsetX).get(ry + offsetY);
-			if(r != null)
-				return r;
-		}catch(Exception e){}
-		setRegion(rx, ry, new TileRegion());
-		return tr.get(rx + offsetX).get(ry + offsetY);
-	}
-	
-	public static void setRegion(int rx, int ry, TileRegion r){
-		int dox = -rx > offsetX ? -rx - offsetX : 0;
-		int doy = -ry > offsetY ? -ry - offsetY : 0;
-		int xx = rx + (offsetX += dox);
-		int yy = ry + (offsetY += doy);
-		for(int i = 0; i < dox; i++){
-			tr.addFirst(new LinkedList<TileRegion>());
-		}
-		for(int i = 0; i < tr.size(); i++){
-			for(int j = 0; j < doy; j++){
-				tr.get(i).addFirst(new TileRegion());
+	private static double pnoise(int x, int y){
+		Random random = new Random();
+		double value = 2d;
+		for(int i = x - 4; i <= x + 4; i++){
+			for(int j = y - 4; j <= y + 4; j++){
+				random.setSeed(seed * 17717171L + i * 22222223L + j * 111181111L);
+				double h = (x == i && y == j) ? 1 : Math.sqrt(Math.pow(x - i, 2) + Math.pow(y - j, 2));
+				value += (random.nextGaussian() * s) / (3d * h);
 			}
 		}
-		while(xx >= tr.size()){
-			tr.addLast(new LinkedList<TileRegion>());
-		}
-		for(int i = 0; i < tr.size(); i++){
-			while(yy >= tr.get(i).size()){
-				tr.get(i).addLast(new TileRegion());
-			}
-		}
-		tr.get(xx).set(yy, r);
+		return value;
 	}
 	
-	public static byte getTile(int tx, int ty){
-		byte b = (byte)Math.round(tileGet(tx, ty));
+	public static byte getTile(int x, int y){
+		byte b = (byte)Math.floor(tileGet(x, y));
+		if(b == NULL) return NULL;
 		if(b >= TREE) return TREE;
-		if(b <= WATER && b != NULL) return WATER;
+		if(b <= WATER) return WATER;
 		return b;
 	}
 
-	public static float tileGet(int tx, int ty){
-		TileRegion r = getRegion(toRegionCoordinate(tx), toRegionCoordinate(ty));
-		return (float)r.get(Math.abs(tx) % 8, Math.abs(ty) % 8);
+	public static double tileGet(int x, int y){
+		try{
+			return tr.get(x + offsetX).get(y + offsetY);
+		}catch(Exception e){
+			return NULL;
+		}
 	}
 
-	public static void setTile(int tx, int ty, byte b){
-		tileSet(tx, ty, (float)b);
+	public static void setTile(int x, int y, byte type){
+		tileSet(x, y, (double)type);
 	}
 	
-	private static void tileSet(int tx, int ty, float f){
-		TileRegion r = getRegion(toRegionCoordinate(tx), toRegionCoordinate(ty));
-		r.set(Math.abs(tx) % 8, Math.abs(ty) % 8, f);
+	private static void tileSet(int x, int y, double d){
+		int dox = -x > offsetX ? -x - offsetX : 0;
+		int doy = -y > offsetY ? -y - offsetY : 0;
+		int xx = x + (offsetX += dox);
+		int yy = y + (offsetY += doy);
+		for(int i = 0; i < dox; i++){
+			tr.addFirst(new LinkedList<Double>());
+		}
+		for(int i = 0; i < tr.size(); i++){
+			for(int j = 0; j < doy; j++){
+				tr.get(i).addFirst(null);
+			}
+		}
+		while(xx >= tr.size()){
+			tr.addLast(new LinkedList<Double>());
+		}
+		for(int i = 0; i < tr.size(); i++){
+			while(yy >= tr.get(i).size()){
+				tr.get(i).addLast(null);
+			}
+		}
+		tr.get(xx).set(yy, d);
 	}
 	
-	public static boolean hasTile(int tx, int ty){
-		return getTile(tx, ty) != NULL;
-	}
-	
-	public static byte getAdjacentTile(int tx, int ty, byte direction){
+	public static byte getAdjacentTile(int x, int y, byte direction){
 		switch(direction){
-		case Sys.NORTH: return getTile(tx, ty - 1);
-		case Sys.WEST: return getTile(tx - 1, ty);
-		case Sys.SOUTH: return getTile(tx, ty + 1);
-		case Sys.EAST: return getTile(tx + 1, ty);
+		case Sys.NORTH: return getTile(x, y - 1);
+		case Sys.WEST: return getTile(x - 1, y);
+		case Sys.SOUTH: return getTile(x, y + 1);
+		case Sys.EAST: return getTile(x + 1, y);
 		}
 		return 0;
 	}
@@ -187,20 +109,4 @@ public abstract class Tileset extends TileConstants{
 	public static byte getAdjacentTile(Entity entity, byte direction){
 		return getAdjacentTile((int)entity.getX(), (int)entity.getY(), direction);
 	}
-	
-	public static LinkedList<LinkedList<TileRegion>> getAllRegions(){
-		return tr;
-	}
-	
-	public static void setTileset(LinkedList<LinkedList<TileRegion>> tr){
-		Tileset.tr = tr;
-	}
-	
-	public static boolean ready(){
-		return !tr.isEmpty();
-	}
-	
-	public static int toRegionCoordinate(int t){
-		return t < 0 ? t / 8 - 1 : t / 8;
-	}
-}
+}	

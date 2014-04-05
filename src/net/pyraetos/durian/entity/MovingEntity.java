@@ -12,7 +12,7 @@ public abstract class MovingEntity extends Entity {
 		this.moving = false;
 	}
 
-	public abstract void quickMove(byte direction);
+	public abstract void quickMove(byte direction, double speed);
 	
 	public abstract void move(byte direction);
 	

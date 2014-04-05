@@ -37,8 +37,8 @@ public class Durian extends JPanel implements Runnable{
 	private static double screenY;
 	private static double gameWidth;
 	private static double gameHeight;
-	public static final int FRAME_WIDTH = 800;
-	public static final int FRAME_HEIGHT = 850;
+	public static final int FRAME_WIDTH = 1000;
+	public static final int FRAME_HEIGHT = 900;
 	
 	//game fields
 	private static int nextEntityUID;
@@ -60,7 +60,7 @@ public class Durian extends JPanel implements Runnable{
 	 * -	PacketTileset needs to include offsetX and offsetY
 	 * 
 	 * Tileset:
-	 * -	Seed is constant
+	 * -	Must randomize the noise further
 	 */
 	
 	public Durian(Container container){
@@ -87,10 +87,9 @@ public class Durian extends JPanel implements Runnable{
 	
 	private static void playOffline(){
 		Tileset.setSeed(parseSeed());
-		Tileset.setEntropy(config.getFloat("entropy", 1.0f));
-		config.comment("entropy", "Does not affect seed. Must be > 0.");
-		Tileset.generate(0, 0);
-		player = new Player(5, 5);
+		Tileset.setEntropy(Math.abs(config.getDouble("entropy", 1.0)));
+		config.comment("entropy", "Does not affect seed. Uses absolute value.");
+		player = new Player(0, 0);
 		player.assign(nextEntityUID++);
 		Entity.addEntity(player);
 		setStatus("Playing offline!");
@@ -132,7 +131,7 @@ public class Durian extends JPanel implements Runnable{
 	}
 	
 	public static boolean ready(){
-		return Tileset.ready() && player != null;
+		return player != null;
 	}
 
 	private void drawStatus(Graphics g){
@@ -147,7 +146,7 @@ public class Durian extends JPanel implements Runnable{
 			for(int y = (int)screenY - 1; y <= (int)screenY + gameHeight; y++){
 				byte type = Tileset.getTile(x, y);
 				if(type == Tileset.NULL){
-					Tileset.generate(Tileset.toRegionCoordinate(x), Tileset.toRegionCoordinate(y));
+					Tileset.pgenerate(x, y);
 					type = Tileset.getTile(x, y);
 				}
 				g.drawImage(Tileset.imageFor(type), (int)((x - screenX) * 50), (int)((y - screenY) * 50), null);
@@ -230,6 +229,11 @@ public class Durian extends JPanel implements Runnable{
 		}
 	}
 
+	public static void setScreen(double x, double y){
+		screenX = x;
+		screenY = y;
+	}
+	
 	private static class PyroKeyAdapter extends KeyAdapter implements Runnable{
 		
 		private Set<Integer> keysDown;

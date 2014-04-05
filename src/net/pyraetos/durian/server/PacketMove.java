@@ -7,10 +7,12 @@ public class PacketMove implements Packet{
 
 	private int uid;
 	private byte direction;
+	private double speed;
 	
-	public PacketMove(int uid, byte direction){
+	public PacketMove(int uid, byte direction, double speed){
 		this.uid = uid;
 		this.direction = direction;
+		this.speed = speed;
 	}
 	
 	public int getUID(){
@@ -21,7 +23,11 @@ public class PacketMove implements Packet{
 		return direction;
 	}
 	
+	public double getSpeed(){
+		return speed;
+	}
+	
 	public void process(){
-		((MovingEntity)Entity.getEntity(uid)).quickMove(direction);
+		((MovingEntity)Entity.getEntity(uid)).quickMove(direction, speed);
 	}
 }

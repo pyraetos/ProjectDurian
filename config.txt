@@ -1,7 +1,7 @@
 serverHostName: pyraetos.net
 
-# Does not affect seed. Must be > 0.
-entropy: 1.0f
+# Does not affect seed. Uses absolute value.
+entropy: 1.0
 
 # Does not affect entropy. Special values: random
 seed: random

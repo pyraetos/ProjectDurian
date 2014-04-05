@@ -19,6 +19,16 @@ public abstract class Sys{
 		new Thread(r).start();
 	}
 	
+	public static boolean equal(Object...objects){
+		Object o = null;
+		for(Object object : objects){
+			if(o != null)
+			if(!object.equals(o)) return false;
+			o = object;
+		}
+		return true;
+	}
+	
 	public static void sleep(long time){
 		try {
 			Thread.sleep(time);

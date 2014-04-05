@@ -15,6 +15,7 @@ public abstract class TileConstants{
 	public final static Image WATER_IMAGE = Images.retrieve("water.png");
 	public final static Image TREE_IMAGE = Images.retrieve("tree.png");
 	public final static Image SAND_IMAGE = Images.retrieve("sand.png");
+	public final static Image NULL_IMAGE = Images.retrieve("null.png");
 	
 	public static Image imageFor(byte type){
 		switch(type){
@@ -22,6 +23,7 @@ public abstract class TileConstants{
 		case SAND: return SAND_IMAGE;
 		case WATER: return WATER_IMAGE;
 		case TREE: return TREE_IMAGE;
+		case NULL: return NULL_IMAGE;
 		default: return null;
 		}
 	}
