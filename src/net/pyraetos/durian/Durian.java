@@ -58,9 +58,6 @@ public class Durian extends JPanel implements Runnable{
 	 * 
 	 * Server:
 	 * -	PacketTileset needs to include offsetX and offsetY
-	 * 
-	 * Tileset:
-	 * -	Must randomize the noise further
 	 */
 	
 	public Durian(Container container){
@@ -84,7 +81,7 @@ public class Durian extends JPanel implements Runnable{
 		else
 			playOffline();
 	}
-	
+
 	private static void playOffline(){
 		Tileset.setSeed(parseSeed());
 		Tileset.setEntropy(Math.abs(config.getDouble("entropy", 1.0)));

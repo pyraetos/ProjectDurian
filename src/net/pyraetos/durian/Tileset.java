@@ -27,16 +27,14 @@ public abstract class Tileset extends TileConstants{
 
 	/**
 	 * Generates a single tile using the Pyraetos algorithm.
-	 * This method is fast, but may not appear as realistic as generate().
 	 * @author Pyraetos
 	 */
 	public static void pgenerate(int x, int y){
-		double value = pnoise(x, y);
-		double d = Math.floor(pnoise(x - 1, y));
-		if(Sys.equal(d, Math.floor(pnoise(x, y - 1)), Math.floor(pnoise(x, y + 1)), Math.floor(pnoise(x + 1, y)))){
-			value = Math.floor(d);
-		}
-		tileSet(x, y, value);
+		double value = 0;
+		for(int i = x - 1; i <= x + 1; i++)
+			for(int j = y - 1; j <= y + 1; j++)
+				value += pnoise(i, j);
+		tileSet(x, y, value / 9d);
 	}
 	
 	private static double pnoise(int x, int y){
