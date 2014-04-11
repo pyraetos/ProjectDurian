@@ -32,9 +32,6 @@ public abstract class Images{
 		prefix = url + (url.endsWith("/") ? "" : "/");
 	}
 
-	/**
-	 * Attempts by default to retrieve from the current working directory
-	 */
 	public static Image retrieve(String file){
 		if(!loadedImages.containsKey(file)){
 			try{

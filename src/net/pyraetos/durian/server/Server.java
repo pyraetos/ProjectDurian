@@ -8,7 +8,6 @@ import java.net.Socket;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.pyraetos.durian.Tileset;
 import net.pyraetos.durian.entity.Entity;
 import net.pyraetos.util.Config;
 import net.pyraetos.util.Sys;
@@ -47,27 +46,31 @@ public class Server extends ServerSocket implements Runnable{
 		}
 	}
 
+	//Disconnect, there's no packet leave
+	
 	private void disconnect(Connection connection){
 		if(!connections.contains(connection)) return;
 		connections.remove(connection);
 		connection.close();
 		int uid = connection.getPlayerUID();
 		Entity.removeEntity(uid);
-		for(Connection bc : connections)
-			bc.send(new PacketLeave(uid));	
+		//for(Connection bc : connections)
+		//	bc.send(new PacketLeave(uid));	
 		System.out.println(connection.getSocket().getInetAddress() + " has disconnected from the server!");	
 	}
 
+	//Joining
+	
 	private void join(Connection connection){
-		connection.send(new PacketTileset());
-		connection.send(new PacketEntities());
+		//connection.send(new PacketTileset());
+		//connection.send(new PacketEntities());
 		int uid = nextEntityUID++;
 		connection.setPlayerUID(uid);
-		PacketJoinMe pjm = new PacketJoinMe(uid);
-		pjm.process();
-		connection.send(pjm);
-		for(Connection bc : connections)
-			bc.send(new PacketJoin(uid));
+		//PacketJoinMe pjm = new PacketJoinMe(uid);
+		//pjm.process();
+		//connection.send(pjm);
+		//for(Connection bc : connections)
+			//bc.send(new PacketJoin(uid));
 	}
 	
 	@Override

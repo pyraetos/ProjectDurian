@@ -10,25 +10,22 @@ import net.pyraetos.util.Sys;
 
 public abstract class Entity implements Serializable{
 
-	protected String sprite;
 	protected int uid;
 	protected double x;
 	protected double y;
+	protected String sprite;
+	private static int nextEntityUID;
 	public static Set<Entity> entities = Sys.concurrentSet(Entity.class);
 	
 	public Entity(double x, double y, String sprite){
+		uid = nextEntityUID++;
+		addEntity(this);
 		teleport(x, y);
 		this.sprite = sprite;
-		this.uid = -1;
 	}
 	
 	public int getUID(){
 		return uid;
-	}
-	
-	public void assign(int uid){
-		if(this.uid >= 0 || uid < 0) return;
-		this.uid = uid;
 	}
 	
 	public double getX(){
@@ -52,26 +49,8 @@ public abstract class Entity implements Serializable{
 		this.y = y;
 	}
 	
-	@Override
-	public int hashCode(){
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + uid;
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj){
-		if(this == obj)
-			return true;
-		if(obj == null)
-			return false;
-		if(!(obj instanceof Entity))
-			return false;
-		Entity other = (Entity)obj;
-		if(uid != other.uid)
-			return false;
-		return true;
+	protected String fileName(){
+		return getClass().getSimpleName();
 	}
 	
 	public static Set<Entity> getEntities(){
@@ -89,6 +68,10 @@ public abstract class Entity implements Serializable{
 		for(Entity entity : entities)
 			if(entity.getUID() == uid)
 				entities.remove(entity);
+	}
+	
+	public static void removeEntity(Entity entity){
+		entities.remove(entity);
 	}
 	
 	public static void addEntity(Entity entity){

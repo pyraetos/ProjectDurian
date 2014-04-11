@@ -3,6 +3,7 @@ package net.pyraetos.durian;
 import java.awt.Image;
 
 import net.pyraetos.util.Images;
+import net.pyraetos.util.Sys;
 
 public abstract class TileConstants{
 	
@@ -26,5 +27,16 @@ public abstract class TileConstants{
 		case NULL: return NULL_IMAGE;
 		default: return null;
 		}
+	}
+	
+	public static String describe(double x, double y){
+		double tile = Tileset.tileGet((int)x, (int)y);
+		byte t = (byte)tile;
+		String type = "NULL";
+		if(t <= 0) type = "WATER"; else
+		if(t == 1) type = "SAND"; else
+		if(t == 2) type = "GRASS"; else
+		if(t >= 3) type = "TREE";
+		return Sys.round(tile) + " (" + type + ")";
 	}
 }

@@ -2,6 +2,8 @@ package net.pyraetos.durian;
 
 import java.util.LinkedList;
 import java.util.Random;
+
+import net.pyraetos.durian.entity.Bandit;
 import net.pyraetos.durian.entity.Entity;
 import net.pyraetos.util.Sys;
 
@@ -35,6 +37,7 @@ public abstract class Tileset extends TileConstants{
 			for(int j = y - 1; j <= y + 1; j++)
 				value += pnoise(i, j);
 		tileSet(x, y, value / 9d);
+		if(Sys.chance(.01d)) Entity.addEntity(new Bandit(x, y));
 	}
 	
 	private static double pnoise(int x, int y){
@@ -92,6 +95,19 @@ public abstract class Tileset extends TileConstants{
 			}
 		}
 		tr.get(xx).set(yy, d);
+	}
+	
+	public static void setAdjacentTile(int x, int y, byte direction, byte type){
+		switch(direction){
+		case Sys.NORTH: setTile(x, y - 1, type); break;
+		case Sys.WEST: setTile(x - 1, y, type); break;
+		case Sys.SOUTH: setTile(x, y + 1, type); break;
+		case Sys.EAST: setTile(x + 1, y, type); break;
+		}
+	}
+	
+	public static void setAdjacentTile(Entity entity, byte direction, byte type){
+		setAdjacentTile((int)entity.getX(), (int)entity.getY(), direction, type);
 	}
 	
 	public static byte getAdjacentTile(int x, int y, byte direction){

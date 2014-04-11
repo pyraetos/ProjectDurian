@@ -25,9 +25,9 @@ import javax.swing.JPanel;
 import net.pyraetos.durian.entity.Entity;
 import net.pyraetos.durian.entity.Player;
 import net.pyraetos.durian.server.Packet;
-import net.pyraetos.durian.server.PacketJoinMe;
 import net.pyraetos.util.Config;
 import net.pyraetos.util.Images;
+import net.pyraetos.util.Sounds;
 import net.pyraetos.util.Sys;
 
 public class Durian extends JPanel implements Runnable{
@@ -41,7 +41,6 @@ public class Durian extends JPanel implements Runnable{
 	public static final int FRAME_HEIGHT = 900;
 	
 	//game fields
-	private static int nextEntityUID;
 	private static Config config;
 	private static AttributedCharacterIterator status;
 	private static Player player;
@@ -56,8 +55,16 @@ public class Durian extends JPanel implements Runnable{
 	 * ProjectDurian TODO List
 	 * ***********************
 	 * 
+	 * Fix movement loop
+	 * 
 	 * Server:
-	 * -	PacketTileset needs to include offsetX and offsetY
+	 * -	Messed up server.disconnect(), server.join()
+	 * 		and durian.handle();
+	 * 
+	 * Goal Timeline
+	 * ***********************
+	 * 
+	 * 04/09/2014 - Spawn walking, animated mobs
 	 */
 	
 	public Durian(Container container){
@@ -73,6 +80,7 @@ public class Durian extends JPanel implements Runnable{
 		Sys.thread(this);
 		setStatus("Loading...");
 		Images.fromPyraetosNet();
+		Sounds.fromPyraetosNet();
 		boolean multiplayer = config.getBoolean("multiplayer", false);
 		serverHostName = config.getString("serverHostName", "pyraetos.net");
 		serverPort = config.getInt("serverPort", 1337);
@@ -87,8 +95,6 @@ public class Durian extends JPanel implements Runnable{
 		Tileset.setEntropy(Math.abs(config.getDouble("entropy", 1.0)));
 		config.comment("entropy", "Does not affect seed. Uses absolute value.");
 		player = new Player(0, 0);
-		player.assign(nextEntityUID++);
-		Entity.addEntity(player);
 		setStatus("Playing offline!");
 	}
 	
@@ -173,11 +179,7 @@ public class Durian extends JPanel implements Runnable{
 	}
 
 	public static void handle(Packet packet){
-		if(packet instanceof PacketJoinMe){
-			packet.process();
-			player = (Player)Entity.getEntity(((PacketJoinMe)packet).getUID());
-		}else
-		packet.process();
+		
 	}
 
 	public static void disconnect(){
@@ -252,21 +254,30 @@ public class Durian extends JPanel implements Runnable{
 
 		@Override
 		public void run(){
+			boolean acted = false;
 			while(true){
 				if(ready()){
 					if(!player.isMoving()){
 						if(keysDown.contains(KeyEvent.VK_W)){
-							player.move(Sys.NORTH);
+							player.move(1, Sys.NORTH);
 						}
 						if(keysDown.contains(KeyEvent.VK_A)){
-							player.move(Sys.WEST);
+							player.move(1, Sys.WEST);
 						}
 						if(keysDown.contains(KeyEvent.VK_S)){
-							player.move(Sys.SOUTH);
+							player.move(1, Sys.SOUTH);
 						}
 						if(keysDown.contains(KeyEvent.VK_D)){
-							player.move(Sys.EAST);
+							player.move(1, Sys.EAST);
 						}
+					}
+					if(!player.isActing()){
+						if(keysDown.contains(KeyEvent.VK_SPACE)){
+							if(!acted){
+								player.act(Player.CUT);
+								acted = true;
+							}
+						}else acted = false;
 					}
 				}
 				Sys.sleep(5);
