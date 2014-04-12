@@ -6,7 +6,6 @@ import net.pyraetos.util.Sys;
 
 public abstract class MovingEntity extends Entity {
 
-	protected double speed = 1.0d;
 	protected byte direction = Sys.SOUTH;
 	protected boolean moving;
 	protected boolean focused;
@@ -28,19 +27,21 @@ public abstract class MovingEntity extends Entity {
 		}
 		if(focused && !Durian.isOnScreen(x + dx, y + dy))
 			Durian.moveScreen(6, direction);
-		byte adjacent = Tileset.getAdjacentTile(this, direction);
-		if(adjacent == Tileset.TREE)
-			return;
 		moving = true;
-		speed = adjacent == Tileset.WATER ? .25d : 1d;
-		for(double i = 0; i < 50 * magnitude; i++){
-			if(!moving) break;
-			x = Sys.round(x + dx / (50 * magnitude));
-			y = Sys.round(y + dy / (50 * magnitude));
-			Sys.sleep((int)(1d / speed));
+		for(double a = 0; a < magnitude; a++){
+			int p = (int)(x + dx / magnitude);
+			int q = (int)(y + dy / magnitude);
+			byte type = Tileset.getTile(p, q);
+			if(type == Tileset.TREE || containsEntity(p, q)) break;
+			double speed = type == Tileset.WATER ? .25d : 1d;
+			for(int b = 0; b < 50; b++){
+				if(!moving) break;
+				x = Sys.round(x + dx / (50 * magnitude));
+				y = Sys.round(y + dy / (50 * magnitude));
+				Sys.sleep((int)(1d / speed));
+			}
 		}
 		moving = false;
-		speed = 1d;
 	}
 	
 	public void setFocused(boolean focused){
@@ -58,8 +59,5 @@ public abstract class MovingEntity extends Entity {
 	public byte getDirection(){
 		return direction;
 	}
-	
-	public double getSpeed(){
-		return speed;
-	}
+
 }

@@ -37,7 +37,7 @@ public abstract class Tileset extends TileConstants{
 			for(int j = y - 1; j <= y + 1; j++)
 				value += pnoise(i, j);
 		tileSet(x, y, value / 9d);
-		if(Sys.chance(.01d)) Entity.addEntity(new Bandit(x, y));
+		if(Sys.chance(.0005d)) Entity.addEntity(new Bandit(x, y));
 	}
 	
 	private static double pnoise(int x, int y){

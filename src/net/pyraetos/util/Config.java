@@ -41,12 +41,12 @@ public class Config{
 				if(raw.startsWith("# "))
 					comment = raw.substring(2);
 				else{
-					String[] split = raw.split(":");
+					String[] split = split(raw);
 					if(comment != null){
-						comments.put(split[0].trim(), comment);
+						comments.put(split[0], comment);
 						comment = null;
 					}
-					map.put(split[0].trim(), split[1].trim());
+					map.put(split[0], split[1]);
 				}
 				raw = in.readLine();
 			}
@@ -151,5 +151,14 @@ public class Config{
 			save();
 		}
 		return Double.parseDouble(map.get(key));
+	}
+
+	private static String[] split(String raw){
+		String[] a = raw.split(":");
+		String[] f = {a[0].trim(), a[1].trim()};
+		for(int i = 2; i < a.length; i++){
+			f[1] += (":" + a[i].trim());
+		}
+		return f;
 	}
 }

@@ -64,6 +64,29 @@ public abstract class Entity implements Serializable{
 		return null;
 	}
 	
+	public static Entity getEntity(Entity entity, byte direction){
+		int x = (int)entity.getX();
+		int y = (int)entity.getY();
+		switch(direction){
+		case Sys.NORTH: y -= 1; break;
+		case Sys.SOUTH: y += 1; break;
+		case Sys.WEST: x -= 1; break;
+		case Sys.EAST: x += 1; break;
+		default: return null;
+		}
+		for(Entity e : entities)
+			if((int)e.getX() == x && (int)e.getY() == y)
+				return e;
+		return null;
+	}
+	
+	public static boolean containsEntity(int x, int y){
+		for(Entity entity : entities)
+			if((int)entity.getX() == x && (int)entity.getY() == y)
+				return true;
+		return false;
+	}
+	
 	public static void removeEntity(int uid){
 		for(Entity entity : entities)
 			if(entity.getUID() == uid)

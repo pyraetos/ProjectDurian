@@ -55,7 +55,7 @@ public class Durian extends JPanel implements Runnable{
 	 * ProjectDurian TODO List
 	 * ***********************
 	 * 
-	 * Fix movement loop
+	 * Entity static methods
 	 * 
 	 * Server:
 	 * -	Messed up server.disconnect(), server.join()
@@ -64,6 +64,7 @@ public class Durian extends JPanel implements Runnable{
 	 * Goal Timeline
 	 * ***********************
 	 * 
+	 * 04/11/2013 - Make it multiplayer capable after fixing config
 	 * 04/09/2014 - Spawn walking, animated mobs
 	 */
 	
@@ -79,8 +80,8 @@ public class Durian extends JPanel implements Runnable{
 		container.addKeyListener(new PyroKeyAdapter());
 		Sys.thread(this);
 		setStatus("Loading...");
-		Images.fromPyraetosNet();
-		Sounds.fromPyraetosNet();
+		Images.fromURL(config.getString("imagesURL", "http://www.pyraetos.net/images"));
+		Sounds.fromURL(config.getString("soundsURL", "http://www.pyraetos.net/sounds"));
 		boolean multiplayer = config.getBoolean("multiplayer", false);
 		serverHostName = config.getString("serverHostName", "pyraetos.net");
 		serverPort = config.getInt("serverPort", 1337);

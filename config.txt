@@ -1,12 +1,16 @@
-serverHostName: pyraetos.net
+soundsURL: http://www.pyraetos.net/sounds
 
-# Does not affect seed. Uses absolute value.
-entropy: 1.0d
+serverHostName:  pyraetos.net
 
-# Does not affect entropy. Special values: random
-seed: random
+imagesURL: http://www.pyraetos.net/images
 
 serverPort: 1337
 
-multiplayer: false
+# Does not affect entropy. Special values: random
+seed:  random
+
+# Does not affect seed. Uses absolute value.
+entropy:  1.0d
+
+multiplayer:  false
 

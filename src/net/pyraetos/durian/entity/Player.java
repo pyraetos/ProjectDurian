@@ -21,6 +21,11 @@ public class Player extends ActingEntity{
 				Tileset.setAdjacentTile(this, direction, Tileset.GRASS);
 				Sounds.play("snap.wav");
 			}
+			Entity entity = getEntity(this, direction);
+			if(entity != null){
+				removeEntity(entity.getUID());
+				Sounds.play("snap.wav");
+			}
 		}
 	}
 	
