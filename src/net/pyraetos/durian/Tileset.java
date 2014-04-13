@@ -5,6 +5,7 @@ import java.util.Random;
 
 import net.pyraetos.durian.entity.Bandit;
 import net.pyraetos.durian.entity.Entity;
+import net.pyraetos.util.Point;
 import net.pyraetos.util.Sys;
 
 public abstract class Tileset extends TileConstants{
@@ -37,7 +38,7 @@ public abstract class Tileset extends TileConstants{
 			for(int j = y - 1; j <= y + 1; j++)
 				value += pnoise(i, j);
 		tileSet(x, y, value / 9d);
-		if(Sys.chance(.0005d)) Entity.addEntity(new Bandit(x, y));
+		if(Sys.chance(.0005d)) new Bandit(x, y);
 	}
 	
 	private static double pnoise(int x, int y){
@@ -60,6 +61,10 @@ public abstract class Tileset extends TileConstants{
 		if(b <= WATER) return WATER;
 		return b;
 	}
+	
+	public static byte getTile(Point point){
+		return getTile(point.getX(), point.getY());
+	}
 
 	public static double tileGet(int x, int y){
 		try{
@@ -73,7 +78,7 @@ public abstract class Tileset extends TileConstants{
 		tileSet(x, y, (double)type);
 	}
 	
-	private static void tileSet(int x, int y, double d){
+	public static void tileSet(int x, int y, double d){
 		int dox = -x > offsetX ? -x - offsetX : 0;
 		int doy = -y > offsetY ? -y - offsetY : 0;
 		int xx = x + (offsetX += dox);

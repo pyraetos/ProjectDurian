@@ -25,8 +25,10 @@ import javax.swing.JPanel;
 import net.pyraetos.durian.entity.Entity;
 import net.pyraetos.durian.entity.Player;
 import net.pyraetos.durian.server.Packet;
+import net.pyraetos.durian.server.PacketTileRequest;
 import net.pyraetos.util.Config;
 import net.pyraetos.util.Images;
+import net.pyraetos.util.Point;
 import net.pyraetos.util.Sounds;
 import net.pyraetos.util.Sys;
 
@@ -50,12 +52,13 @@ public class Durian extends JPanel implements Runnable{
 	private static String serverHostName;
 	private static int serverPort;
 	private static Queue<Packet> queue;
+	private static Set<Point> requestedTiles;
 	
 	/*
 	 * ProjectDurian TODO List
 	 * ***********************
 	 * 
-	 * Entity static methods
+	 * Packets for moving, killing, tree chopping, and leaving
 	 * 
 	 * Server:
 	 * -	Messed up server.disconnect(), server.join()
@@ -85,6 +88,7 @@ public class Durian extends JPanel implements Runnable{
 		boolean multiplayer = config.getBoolean("multiplayer", false);
 		serverHostName = config.getString("serverHostName", "pyraetos.net");
 		serverPort = config.getInt("serverPort", 1337);
+		requestedTiles = new HashSet<Point>();
 		if(multiplayer)
 			Sys.thread(new ConnectThread());
 		else
@@ -95,7 +99,7 @@ public class Durian extends JPanel implements Runnable{
 		Tileset.setSeed(parseSeed());
 		Tileset.setEntropy(Math.abs(config.getDouble("entropy", 1.0)));
 		config.comment("entropy", "Does not affect seed. Uses absolute value.");
-		player = new Player(0, 0);
+		player = new Player(0, 0, true);
 		setStatus("Playing offline!");
 	}
 	
@@ -148,10 +152,18 @@ public class Durian extends JPanel implements Runnable{
 	private void drawTileset(Graphics g){
 		for(int x = (int)screenX - 1; x <= (int)screenX + gameWidth; x++){
 			for(int y = (int)screenY - 1; y <= (int)screenY + gameHeight; y++){
-				byte type = Tileset.getTile(x, y);
+				Point point = new Point(x, y);
+				byte type = Tileset.getTile(point);
 				if(type == Tileset.NULL){
-					Tileset.pgenerate(x, y);
-					type = Tileset.getTile(x, y);
+					if(online()){
+						if(!requestedTiles.contains(point)){
+							send(new PacketTileRequest(x, y));
+							requestedTiles.add(point);
+						}
+					}else{
+						Tileset.pgenerate(x, y);
+						type = Tileset.getTile(x, y);
+					}
 				}
 				g.drawImage(Tileset.imageFor(type), (int)((x - screenX) * 50), (int)((y - screenY) * 50), null);
 			}
@@ -174,13 +186,20 @@ public class Durian extends JPanel implements Runnable{
 		status = string.getIterator();
 	}
 
+	public static void setPlayer(Player player){
+		if(Durian.player != null)
+			Entity.removeEntity(Durian.player);
+		Durian.player = player;
+		player.setFocused(true);
+	}
+	
 	public static void send(Packet packet){
 		if(online())
-		queue.add(packet);
+			queue.add(packet);
 	}
 
 	public static void handle(Packet packet){
-		
+		packet.process();
 	}
 
 	public static void disconnect(){
@@ -192,7 +211,7 @@ public class Durian extends JPanel implements Runnable{
 		setStatus("Disconnected from " + serverHostName + "! Playing offline!");
 		return;
 	}
-	
+
 	public static double getScreenX(){
 		return screenX;
 	}
@@ -212,7 +231,7 @@ public class Durian extends JPanel implements Runnable{
 	public static boolean isOnScreen(Entity entity){
 		return isOnScreen(entity.getX(), entity.getY());
 	}
-	
+
 	public static void moveScreen(double magnitude, byte direction){
 		double dx = 0;
 		double dy = 0;
@@ -233,16 +252,16 @@ public class Durian extends JPanel implements Runnable{
 		screenX = x;
 		screenY = y;
 	}
-	
+
 	private static class PyroKeyAdapter extends KeyAdapter implements Runnable{
-		
+
 		private Set<Integer> keysDown;
-		
+
 		public PyroKeyAdapter(){
 			keysDown = new HashSet<Integer>();
 			Sys.thread(this);
 		}
-		
+
 		public void keyPressed(KeyEvent event){
 			if(!ready()) return;
 			keysDown.add(event.getKeyCode());
@@ -297,13 +316,14 @@ public class Durian extends JPanel implements Runnable{
 				queue = new LinkedList<Packet>();
 				Sys.thread(new InputThread());
 				Sys.thread(new OutputThread());
+				setStatus("Playing online!");
 			}catch(Exception e){
 				disconnect();
 				playOffline();
 			}
 		}
 	}
-	
+
 	private static class InputThread implements Runnable{
 		private ObjectInputStream in;
 		{
@@ -313,22 +333,21 @@ public class Durian extends JPanel implements Runnable{
 				e.printStackTrace();
 			}
 		}
-	
+
 		@Override
 		public void run(){
 			try{
 				while(true){
 					handle((Packet)in.readObject());
-					setStatus("Done!");
 					Sys.sleep(5);
 				}
 			}catch(Exception e){
 				if(server != null)
-				disconnect();
+					disconnect();
 			}
 		}
 	}
-	
+
 	private static class OutputThread implements Runnable{
 		private ObjectOutputStream out;
 		{
@@ -350,7 +369,7 @@ public class Durian extends JPanel implements Runnable{
 				}
 			}catch(Exception e){
 				if(server != null)
-				disconnect();
+					disconnect();
 			}
 		}
 	}

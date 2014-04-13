@@ -1,2 +1,8 @@
 port: 1337
-seed: -576204145138
+
+# Does not affect seed. Uses absolute value.
+entropy: 1.0
+
+# Does not affect entropy. Special values: random
+seed: random
+

@@ -1,16 +1,19 @@
 soundsURL: http://www.pyraetos.net/sounds
 
-serverHostName:  pyraetos.net
+serverHostName: localhost
 
 imagesURL: http://www.pyraetos.net/images
+
+# If true, a 64x64 region about the origin will be downloaded from server before you can play.
+downloadTilesetAtStart: true
 
 serverPort: 1337
 
 # Does not affect entropy. Special values: random
-seed:  random
+seed: random
 
 # Does not affect seed. Uses absolute value.
-entropy:  1.0d
+entropy: 1.0d
 
-multiplayer:  false
+multiplayer: true
 

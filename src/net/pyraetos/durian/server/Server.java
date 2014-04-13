@@ -8,7 +8,9 @@ import java.net.Socket;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.pyraetos.durian.Tileset;
 import net.pyraetos.durian.entity.Entity;
+import net.pyraetos.durian.entity.Player;
 import net.pyraetos.util.Config;
 import net.pyraetos.util.Sys;
 
@@ -16,7 +18,6 @@ public class Server extends ServerSocket implements Runnable{
 
 	private static Set<Connection> connections;
 	private static Config config;
-	private static int nextEntityUID;
 	
 	public static void start(){
 		try{
@@ -29,26 +30,45 @@ public class Server extends ServerSocket implements Runnable{
 
 	private Server(int port) throws IOException{
 		super(port);
-		System.out.println("Battle Server started on port " + port + "!");
+		System.out.println("Durian server started on port " + port + "!");
 		connections = new HashSet<Connection>();
-		System.out.println("Generating tileset...");
-		//Tileset.generate();
-		System.out.println("Server online!");
+		long seed = parseSeed();
+		double s = Math.abs(config.getDouble("entropy", 1.0));
+		config.comment("entropy", "Does not affect seed. Uses absolute value.");
+		Tileset.setSeed(seed);
+		Tileset.setEntropy(s);
+		System.out.println("Server online! Tileset seed = " + seed + "; Tileset entropy = " + s);
 		Sys.thread(this);
 	}
 
-	private void handle(Connection connection, Packet packet){
-		packet.process();
-		for(Connection bc : connections){
-			if(bc != connection){
-				bc.send(packet);
+	private static long parseSeed(){
+		String s = config.getString("seed", "random");
+		config.comment("seed", "Does not affect entropy. Special values: random");
+		if(!s.equalsIgnoreCase("random"))
+		try{
+			return Long.parseLong(s);
+		}catch(Exception e){
+			return s.hashCode();
+		}
+		else return Sys.randomSeed();
+	}
+	
+	private static void handle(Connection connection, Packet packet){
+		if(packet instanceof PacketTileRequest){
+			connection.send(((PacketTileRequest)packet).getPacketTile());
+		}else{
+			packet.process();
+			for(Connection c : connections){
+				if(c != connection){
+					c.send(packet);
+				}
 			}
 		}
 	}
 
 	//Disconnect, there's no packet leave
 	
-	private void disconnect(Connection connection){
+	private static void disconnect(Connection connection){
 		if(!connections.contains(connection)) return;
 		connections.remove(connection);
 		connection.close();
@@ -57,20 +77,6 @@ public class Server extends ServerSocket implements Runnable{
 		//for(Connection bc : connections)
 		//	bc.send(new PacketLeave(uid));	
 		System.out.println(connection.getSocket().getInetAddress() + " has disconnected from the server!");	
-	}
-
-	//Joining
-	
-	private void join(Connection connection){
-		//connection.send(new PacketTileset());
-		//connection.send(new PacketEntities());
-		int uid = nextEntityUID++;
-		connection.setPlayerUID(uid);
-		//PacketJoinMe pjm = new PacketJoinMe(uid);
-		//pjm.process();
-		//connection.send(pjm);
-		//for(Connection bc : connections)
-			//bc.send(new PacketJoin(uid));
 	}
 	
 	@Override
@@ -83,14 +89,25 @@ public class Server extends ServerSocket implements Runnable{
 				connections.add(connection);
 				new OutputThread(connection);
 				new InputThread(connection);
-				join(connection);
+				connection.send(new PacketEntities(Entity.getEntities()));
+				Player player = new Player(0, 0, false);
+				connection.setPlayerUID(player.getUID());
+				connection.send(new PacketSeed(Tileset.getSeed()));
+				PacketJoin join = new PacketJoin(player);
+				for(Connection c : connections){
+					if(c != connection){
+						c.send(join);
+					}
+				}
+				join.setMe(true);
+				connection.send(join);
 			}catch (IOException e){
 				e.printStackTrace();
 			}
 		}
 	}
 
-	private class InputThread extends Thread{
+	private static class InputThread extends Thread{
 		
 		private Connection connection;
 		private ObjectInputStream in;
@@ -119,7 +136,7 @@ public class Server extends ServerSocket implements Runnable{
 		}
 	}
 	
-	private class OutputThread extends Thread{
+	private static class OutputThread extends Thread{
 		
 		private Connection connection;
 		private ObjectOutputStream out;

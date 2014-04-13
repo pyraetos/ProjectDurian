@@ -9,8 +9,8 @@ public class Player extends ActingEntity{
 	
 	public static final byte CUT = 0;
 	
-	public Player(double x, double y){
-		super(x, y, "player/south.png", true);
+	public Player(double x, double y, boolean focused){
+		super(x, y, "player/south.png", focused);
 	}
 
 	@Override
@@ -22,8 +22,8 @@ public class Player extends ActingEntity{
 				Sounds.play("snap.wav");
 			}
 			Entity entity = getEntity(this, direction);
-			if(entity != null){
-				removeEntity(entity.getUID());
+			if(entity != null && entity instanceof Bandit){
+				entity.setAlive(false);
 				Sounds.play("snap.wav");
 			}
 		}

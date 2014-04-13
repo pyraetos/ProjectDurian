@@ -32,7 +32,7 @@ public abstract class MovingEntity extends Entity {
 			int p = (int)(x + dx / magnitude);
 			int q = (int)(y + dy / magnitude);
 			byte type = Tileset.getTile(p, q);
-			if(type == Tileset.TREE || containsEntity(p, q)) break;
+			if(type == Tileset.NULL || type == Tileset.TREE || containsEntity(p, q)) break;
 			double speed = type == Tileset.WATER ? .25d : 1d;
 			for(int b = 0; b < 50; b++){
 				if(!moving) break;

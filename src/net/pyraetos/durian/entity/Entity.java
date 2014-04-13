@@ -9,16 +9,18 @@ import net.pyraetos.util.Images;
 import net.pyraetos.util.Sys;
 
 public abstract class Entity implements Serializable{
-
+	
 	protected int uid;
 	protected double x;
 	protected double y;
+	protected boolean alive;
 	protected String sprite;
 	private static int nextEntityUID;
 	public static Set<Entity> entities = Sys.concurrentSet(Entity.class);
 	
 	public Entity(double x, double y, String sprite){
 		uid = nextEntityUID++;
+		alive = true;
 		addEntity(this);
 		teleport(x, y);
 		this.sprite = sprite;
@@ -48,13 +50,25 @@ public abstract class Entity implements Serializable{
 		this.x = x;
 		this.y = y;
 	}
+
+	public void setAlive(boolean alive){
+		this.alive = alive;
+	}
 	
 	protected String fileName(){
 		return getClass().getSimpleName();
 	}
 	
+	public static void setEntities(Set<Entity> entities){
+		Entity.entities = entities;
+	}
+	
 	public static Set<Entity> getEntities(){
 		return entities;
+	}
+	
+	public static void addEntity(Entity entity){
+		entities.add(entity);
 	}
 	
 	public static Entity getEntity(int uid){
@@ -80,11 +94,15 @@ public abstract class Entity implements Serializable{
 		return null;
 	}
 	
+	public static Entity getEntity(int x, int y){
+		for(Entity e : entities)
+			if((int)e.getX() == x && (int)e.getY() == y)
+				return e;
+		return null;
+	}
+	
 	public static boolean containsEntity(int x, int y){
-		for(Entity entity : entities)
-			if((int)entity.getX() == x && (int)entity.getY() == y)
-				return true;
-		return false;
+		return getEntity(x, y) == null ? false : true;
 	}
 	
 	public static void removeEntity(int uid){
@@ -95,10 +113,6 @@ public abstract class Entity implements Serializable{
 	
 	public static void removeEntity(Entity entity){
 		entities.remove(entity);
-	}
-	
-	public static void addEntity(Entity entity){
-		entities.add(entity);
 	}
 
 	public static void clearAllEntities(){
