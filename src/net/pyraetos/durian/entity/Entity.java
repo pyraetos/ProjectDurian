@@ -1,7 +1,6 @@
 package net.pyraetos.durian.entity;
 
 import java.awt.Image;
-
 import java.io.Serializable;
 import java.util.Set;
 
@@ -22,7 +21,8 @@ public abstract class Entity implements Serializable{
 		uid = nextEntityUID++;
 		alive = true;
 		addEntity(this);
-		teleport(x, y);
+		this.x = x;
+		this.y = y;
 		this.sprite = sprite;
 	}
 	
@@ -55,6 +55,28 @@ public abstract class Entity implements Serializable{
 		this.alive = alive;
 	}
 	
+	@Override
+	public int hashCode(){
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + uid;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj){
+		if(this == obj)
+			return true;
+		if(obj == null)
+			return false;
+		if(getClass() != obj.getClass())
+			return false;
+		Entity other = (Entity)obj;
+		if(uid != other.uid)
+			return false;
+		return true;
+	}
+
 	protected String fileName(){
 		return getClass().getSimpleName();
 	}

@@ -1,20 +1,29 @@
 package net.pyraetos.durian;
 
+import java.awt.Image;
 import java.util.LinkedList;
 import java.util.Random;
 
 import net.pyraetos.durian.entity.Bandit;
 import net.pyraetos.durian.entity.Entity;
+import net.pyraetos.durian.server.PacketEntity;
+import net.pyraetos.durian.server.Server;
+import net.pyraetos.util.Images;
 import net.pyraetos.util.Point;
 import net.pyraetos.util.Sys;
 
-public abstract class Tileset extends TileConstants{
+public abstract class Tileset{
 
 	private static LinkedList<LinkedList<Double>> tr = new LinkedList<LinkedList<Double>>();
 	private static long seed = Sys.randomSeed();
 	private static int offsetX;
 	private static int offsetY;
 	private static double s = 1.0d;
+	public static final byte WATER = 0;
+	public static final byte SAND = 1;
+	public static final byte GRASS = 2;
+	public static final byte TREE = 3;
+	public static final byte NULL = -128;
 	
 	public static void setSeed(long seed){
 		Tileset.seed = seed;
@@ -38,7 +47,11 @@ public abstract class Tileset extends TileConstants{
 			for(int j = y - 1; j <= y + 1; j++)
 				value += pnoise(i, j);
 		tileSet(x, y, value / 9d);
-		if(Sys.chance(.0005d)) new Bandit(x, y);
+		if(Sys.chance(.0005d)){
+			Bandit bandit = new Bandit(x, y);
+			if(ProjectDurian.isServer())
+				Server.sendAll(new PacketEntity(bandit));
+		}
 	}
 	
 	private static double pnoise(int x, int y){
@@ -128,4 +141,27 @@ public abstract class Tileset extends TileConstants{
 	public static byte getAdjacentTile(Entity entity, byte direction){
 		return getAdjacentTile((int)entity.getX(), (int)entity.getY(), direction);
 	}
+
+	public static Image imageFor(byte type){
+		switch(type){
+		case GRASS: return Images.retrieve("grass.png");
+		case SAND: return Images.retrieve("sand.png");
+		case WATER: return Images.retrieve("water.png");
+		case TREE: return Images.retrieve("tree.png");
+		case NULL: return Images.retrieve("null.png");
+		default: return null;
+		}
+	}
+	
+	public static String describe(double x, double y){
+		double tile = tileGet((int)x, (int)y);
+		byte t = (byte)tile;
+		String type = "NULL";
+		if(t <= 0) type = "WATER"; else
+		if(t == 1) type = "SAND"; else
+		if(t == 2) type = "GRASS"; else
+		if(t >= 3) type = "TREE";
+		return Sys.round(tile) + " (" + type + ")";
+	}
+
 }	

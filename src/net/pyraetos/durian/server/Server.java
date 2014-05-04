@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -40,7 +39,7 @@ public class Server extends ServerSocket implements Runnable{
 		System.out.println("Server online! Tileset seed = " + seed + "; Tileset entropy = " + s);
 		Sys.thread(this);
 	}
-
+	
 	private static long parseSeed(){
 		String s = config.getString("seed", "random");
 		config.comment("seed", "Does not affect entropy. Special values: random");
@@ -51,6 +50,12 @@ public class Server extends ServerSocket implements Runnable{
 			return s.hashCode();
 		}
 		else return Sys.randomSeed();
+	}
+	
+	public static void sendAll(Packet packet){
+		for(Connection connection : connections){
+			connection.send(packet);
+		}
 	}
 	
 	private static void handle(Connection connection, Packet packet){
@@ -65,17 +70,14 @@ public class Server extends ServerSocket implements Runnable{
 			}
 		}
 	}
-
-	//Disconnect, there's no packet leave
 	
 	private static void disconnect(Connection connection){
-		if(!connections.contains(connection)) return;
 		connections.remove(connection);
 		connection.close();
 		int uid = connection.getPlayerUID();
 		Entity.removeEntity(uid);
-		//for(Connection bc : connections)
-		//	bc.send(new PacketLeave(uid));	
+		for(Connection c : connections)
+			c.send(new PacketLeave(uid));	
 		System.out.println(connection.getSocket().getInetAddress() + " has disconnected from the server!");	
 	}
 	
@@ -83,24 +85,23 @@ public class Server extends ServerSocket implements Runnable{
 	public void run(){
 		while(true){
 			try{
-				Socket socket = accept();
-				System.out.println(socket.getInetAddress() + " has connected to the server!");
-				Connection connection = new Connection(socket);
+				Connection connection = new Connection(accept());
+				System.out.println(connection.getSocket().getInetAddress() + " has connected to the server!");
 				connections.add(connection);
 				new OutputThread(connection);
 				new InputThread(connection);
-				connection.send(new PacketEntities(Entity.getEntities()));
+				connection.send(new PacketSeed(Tileset.getSeed()));
+				for(Entity entity : Entity.getEntities()){
+					connection.send(new PacketEntity(entity));
+				}
 				Player player = new Player(0, 0, false);
 				connection.setPlayerUID(player.getUID());
-				connection.send(new PacketSeed(Tileset.getSeed()));
-				PacketJoin join = new PacketJoin(player);
-				for(Connection c : connections){
-					if(c != connection){
-						c.send(join);
-					}
-				}
-				join.setMe(true);
-				connection.send(join);
+				PacketEntity entity = new PacketEntity(player);
+				for(Connection c : connections)
+					if(c == connection)
+						c.send(new PacketPlayer(player));
+					else
+						c.send(entity);
 			}catch (IOException e){
 				e.printStackTrace();
 			}

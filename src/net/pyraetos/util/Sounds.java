@@ -66,4 +66,22 @@ public abstract class Sounds{
 	public static void play(String file){
 		Sounds.file = file;
 	}
+	
+	public static void download(String file){
+		if(file != null){
+			try{
+				if(!loadedSounds.containsKey(file)){
+					URL url = new URL(prefix + file);
+					Clip clip = AudioSystem.getClip();
+					AudioInputStream in = AudioSystem.getAudioInputStream(url);
+					clip.open(in);
+					in.close();
+					loadedSounds.put(file, clip);
+				}
+			}catch(Exception e){
+				Sys.debug("Path: " + prefix + file);
+				e.printStackTrace();
+			}
+		}
+	}
 }

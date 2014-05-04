@@ -1,20 +1,15 @@
 package net.pyraetos.durian;
 
-import java.awt.Color;
 import java.awt.Container;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.font.TextAttribute;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.text.AttributedCharacterIterator;
-import java.text.AttributedString;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -34,18 +29,19 @@ import net.pyraetos.util.Sys;
 
 public class Durian extends JPanel implements Runnable{
 
+	//instance
+	private static Durian instance;
+	
 	//window fields
 	private static double screenX;
 	private static double screenY;
 	private static double gameWidth;
 	private static double gameHeight;
-	public static final int FRAME_WIDTH = 1000;
-	public static final int FRAME_HEIGHT = 900;
 	
 	//game fields
 	private static Config config;
-	private static AttributedCharacterIterator status;
 	private static Player player;
+	private static boolean ready;
 	
 	//server fields
 	private static Socket server;
@@ -54,16 +50,16 @@ public class Durian extends JPanel implements Runnable{
 	private static Queue<Packet> queue;
 	private static Set<Point> requestedTiles;
 	
+	//constants
+	public static final String[] SOUNDS = {"snap.wav"};
+	
 	/*
 	 * ProjectDurian TODO List
 	 * ***********************
 	 * 
-	 * Packets for moving, killing, tree chopping, and leaving
-	 * 
-	 * Server:
-	 * -	Messed up server.disconnect(), server.join()
-	 * 		and durian.handle();
-	 * 
+	 * Download sounds at start
+	 * Terrain downloading from server no good
+	 *
 	 * Goal Timeline
 	 * ***********************
 	 * 
@@ -72,19 +68,21 @@ public class Durian extends JPanel implements Runnable{
 	 */
 	
 	public Durian(Container container){
+		instance = this;
+		Status.set("Loading...");
 		setFocusable(true);
 		setDoubleBuffered(true);
-		setBounds(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
-		screenX = 0;
-		screenY = 0;
-		gameWidth = FRAME_WIDTH / 50;
-		gameHeight = FRAME_HEIGHT / 50 - 1;
+		setBounds(0, 0, DurianFrame.FRAME_WIDTH, DurianFrame.FRAME_HEIGHT - 50);
+		screenX = -5;
+		screenY = -5;
+		gameWidth = DurianFrame.FRAME_WIDTH / 50;
+		gameHeight = DurianFrame.FRAME_HEIGHT / 50 - 1;
 		config = new Config("config.txt");
 		container.addKeyListener(new PyroKeyAdapter());
 		Sys.thread(this);
-		setStatus("Loading...");
 		Images.fromURL(config.getString("imagesURL", "http://www.pyraetos.net/images"));
 		Sounds.fromURL(config.getString("soundsURL", "http://www.pyraetos.net/sounds"));
+		Sys.thread(new SoundDownloadThread());
 		boolean multiplayer = config.getBoolean("multiplayer", false);
 		serverHostName = config.getString("serverHostName", "pyraetos.net");
 		serverPort = config.getInt("serverPort", 1337);
@@ -94,13 +92,22 @@ public class Durian extends JPanel implements Runnable{
 		else
 			playOffline();
 	}
-
+	
 	private static void playOffline(){
 		Tileset.setSeed(parseSeed());
 		Tileset.setEntropy(Math.abs(config.getDouble("entropy", 1.0)));
 		config.comment("entropy", "Does not affect seed. Uses absolute value.");
 		player = new Player(0, 0, true);
-		setStatus("Playing offline!");
+		int side = config.getInt("generate", 32);
+		config.comment("generate", "Generates a square of tiles at startup with this value for the side length");
+		for(int x = -side/2; x < side/2; x++){
+			for(int y = -side/2; y < side/2; y++){
+				Tileset.pgenerate(x, y);
+			}
+		}
+		ready = true;
+		Status.set("Ready!");
+		DurianFrame.modifyTitle(DurianFrame.OFFLINE);
 	}
 	
 	private static long parseSeed(){
@@ -114,6 +121,12 @@ public class Durian extends JPanel implements Runnable{
 		}
 		else return Sys.randomSeed();
 	}
+
+	static void setGameSize(int width, int height){
+		instance.setSize(width, height);
+		gameHeight = ((double)height) / 50d;
+		gameWidth = ((double)width) / 50d;
+	}
 	
 	@Override
 	public void run(){
@@ -126,36 +139,24 @@ public class Durian extends JPanel implements Runnable{
 	@Override
 	public void paint(Graphics g){
 		super.paint(g);
-		if(ready()){
+		if(ready){
 			drawTileset(g);
 			drawEntities(g);
 		}
-		drawStatus(g);
 		g.dispose();
 	}
 	
-	public static boolean online(){
+	public static boolean isOnline(){
 		return server != null;
 	}
 	
-	public static boolean ready(){
-		return player != null;
-	}
-
-	private void drawStatus(Graphics g){
-		g.setColor(Color.BLACK);
-		g.fillRect(0, (int)gameHeight * 50, FRAME_WIDTH, 50);
-		g.setColor(Color.WHITE);
-		g.drawString(status, 10, (int)gameHeight * 50 + 30);
-	}
-
 	private void drawTileset(Graphics g){
 		for(int x = (int)screenX - 1; x <= (int)screenX + gameWidth; x++){
 			for(int y = (int)screenY - 1; y <= (int)screenY + gameHeight; y++){
 				Point point = new Point(x, y);
 				byte type = Tileset.getTile(point);
 				if(type == Tileset.NULL){
-					if(online()){
+					if(isOnline()){
 						if(!requestedTiles.contains(point)){
 							send(new PacketTileRequest(x, y));
 							requestedTiles.add(point);
@@ -180,21 +181,18 @@ public class Durian extends JPanel implements Runnable{
 		}
 	}
 
-	public static void setStatus(String s){
-		AttributedString string = new AttributedString(s);
-		string.addAttribute(TextAttribute.FONT, new Font("Courier New", Font.PLAIN, 16));
-		status = string.getIterator();
-	}
-
 	public static void setPlayer(Player player){
 		if(Durian.player != null)
 			Entity.removeEntity(Durian.player);
 		Durian.player = player;
 		player.setFocused(true);
+		ready = true;
+		Status.set("Ready!");
+		DurianFrame.modifyTitle(DurianFrame.ONLINE);
 	}
 	
-	public static void send(Packet packet){
-		if(online())
+	public synchronized static void send(Packet packet){
+		if(isOnline())
 			queue.add(packet);
 	}
 
@@ -208,7 +206,8 @@ public class Durian extends JPanel implements Runnable{
 		}catch(IOException e){}
 		server = null;
 		queue = null;
-		setStatus("Disconnected from " + serverHostName + "! Playing offline!");
+		Status.set("Disconnected from " + serverHostName + "!");
+		DurianFrame.modifyTitle(DurianFrame.OFFLINE);
 		return;
 	}
 
@@ -263,12 +262,12 @@ public class Durian extends JPanel implements Runnable{
 		}
 
 		public void keyPressed(KeyEvent event){
-			if(!ready()) return;
+			if(!ready) return;
 			keysDown.add(event.getKeyCode());
 		}	
 
 		public void keyReleased(KeyEvent event){
-			if(!ready()) return;
+			if(!ready) return;
 			keysDown.remove(event.getKeyCode());
 		}
 
@@ -276,7 +275,7 @@ public class Durian extends JPanel implements Runnable{
 		public void run(){
 			boolean acted = false;
 			while(true){
-				if(ready()){
+				if(ready){
 					if(!player.isMoving()){
 						if(keysDown.contains(KeyEvent.VK_W)){
 							player.move(1, Sys.NORTH);
@@ -291,32 +290,40 @@ public class Durian extends JPanel implements Runnable{
 							player.move(1, Sys.EAST);
 						}
 					}
-					if(!player.isActing()){
-						if(keysDown.contains(KeyEvent.VK_SPACE)){
-							if(!acted){
-								player.act(Player.CUT);
-								acted = true;
-							}
-						}else acted = false;
-					}
+					if(keysDown.contains(KeyEvent.VK_SPACE)){
+						if(!acted){
+							player.cut();
+							acted = true;
+						}
+					}else acted = false;
 				}
 				Sys.sleep(5);
 			}
 		}
 	}
 
+	private static class SoundDownloadThread implements Runnable{
+		
+		@Override
+		public void run(){
+			for(String sound : SOUNDS){
+				Sounds.download(sound);
+			}
+		}
+		
+	}
+	
 	private static class ConnectThread implements Runnable{
 		@Override
 		public void run(){
 			try{
-				setStatus("Trying to connect to server " + serverHostName + ":" + serverPort + "...");
+				Status.set("Trying to connect to server " + serverHostName + ":" + serverPort + "...");
 				SocketAddress address = new InetSocketAddress(serverHostName, serverPort);
 				server = new Socket();
 				server.connect(address, 3000);
 				queue = new LinkedList<Packet>();
 				Sys.thread(new InputThread());
 				Sys.thread(new OutputThread());
-				setStatus("Playing online!");
 			}catch(Exception e){
 				disconnect();
 				playOffline();
