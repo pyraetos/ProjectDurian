@@ -149,7 +149,7 @@ public abstract class Tileset{
 		case WATER: return Images.retrieve("water.png");
 		case TREE: return Images.retrieve("tree.png");
 		case NULL: return Images.retrieve("null.png");
-		default: return null;
+		default: return Images.retrieve("null.png");
 		}
 	}
 	

@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
+import javax.swing.JApplet;
 import javax.swing.JPanel;
 
 import net.pyraetos.durian.entity.Entity;
@@ -33,6 +34,7 @@ public class Durian extends JPanel implements Runnable{
 	private static Durian instance;
 	
 	//window fields
+	private static boolean applet;
 	private static double screenX;
 	private static double screenY;
 	private static double gameWidth;
@@ -50,25 +52,24 @@ public class Durian extends JPanel implements Runnable{
 	private static Queue<Packet> queue;
 	private static Set<Point> requestedTiles;
 	
-	//constants
-	public static final String[] SOUNDS = {"snap.wav"};
-	
 	/*
 	 * ProjectDurian TODO List
 	 * ***********************
 	 * 
-	 * Download sounds at start
-	 * Terrain downloading from server no good
+	 * Make an applet version
+	 * Tileset changes
 	 *
 	 * Goal Timeline
 	 * ***********************
 	 * 
+	 * 05/05/2014 - Make an applet version
 	 * 04/11/2013 - Make it multiplayer capable after fixing config
 	 * 04/09/2014 - Spawn walking, animated mobs
 	 */
 	
 	public Durian(Container container){
 		instance = this;
+		applet = container instanceof JApplet;
 		Status.set("Loading...");
 		setFocusable(true);
 		setDoubleBuffered(true);
@@ -82,11 +83,9 @@ public class Durian extends JPanel implements Runnable{
 		Sys.thread(this);
 		Images.fromURL(config.getString("imagesURL", "http://www.pyraetos.net/images"));
 		Sounds.fromURL(config.getString("soundsURL", "http://www.pyraetos.net/sounds"));
-		Sys.thread(new SoundDownloadThread());
-		boolean multiplayer = config.getBoolean("multiplayer", false);
+		boolean multiplayer = applet ? true : config.getBoolean("multiplayer", false);
 		serverHostName = config.getString("serverHostName", "pyraetos.net");
 		serverPort = config.getInt("serverPort", 1337);
-		requestedTiles = new HashSet<Point>();
 		if(multiplayer)
 			Sys.thread(new ConnectThread());
 		else
@@ -107,7 +106,8 @@ public class Durian extends JPanel implements Runnable{
 		}
 		ready = true;
 		Status.set("Ready!");
-		DurianFrame.modifyTitle(DurianFrame.OFFLINE);
+		if(!applet)
+			DurianFrame.modifyTitle(DurianFrame.OFFLINE);
 	}
 	
 	private static long parseSeed(){
@@ -188,7 +188,8 @@ public class Durian extends JPanel implements Runnable{
 		player.setFocused(true);
 		ready = true;
 		Status.set("Ready!");
-		DurianFrame.modifyTitle(DurianFrame.ONLINE);
+		if(!applet)
+			DurianFrame.modifyTitle(DurianFrame.ONLINE);
 	}
 	
 	public synchronized static void send(Packet packet){
@@ -207,8 +208,8 @@ public class Durian extends JPanel implements Runnable{
 		server = null;
 		queue = null;
 		Status.set("Disconnected from " + serverHostName + "!");
-		DurianFrame.modifyTitle(DurianFrame.OFFLINE);
-		return;
+		if(!applet)
+			DurianFrame.modifyTitle(DurianFrame.OFFLINE);
 	}
 
 	public static double getScreenX(){
@@ -302,17 +303,6 @@ public class Durian extends JPanel implements Runnable{
 		}
 	}
 
-	private static class SoundDownloadThread implements Runnable{
-		
-		@Override
-		public void run(){
-			for(String sound : SOUNDS){
-				Sounds.download(sound);
-			}
-		}
-		
-	}
-	
 	private static class ConnectThread implements Runnable{
 		@Override
 		public void run(){
@@ -322,6 +312,7 @@ public class Durian extends JPanel implements Runnable{
 				server = new Socket();
 				server.connect(address, 3000);
 				queue = new LinkedList<Packet>();
+				requestedTiles = new HashSet<Point>();
 				Sys.thread(new InputThread());
 				Sys.thread(new OutputThread());
 			}catch(Exception e){

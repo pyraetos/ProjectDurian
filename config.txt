@@ -15,5 +15,5 @@ seed: random
 
 serverPort: 1337
 
-multiplayer: true
+multiplayer: false
 
