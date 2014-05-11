@@ -61,7 +61,7 @@ public class Durian extends JPanel implements Runnable{
 	 *
 	 * Goal Timeline
 	 * ***********************
-	 * 
+	 * 89
 	 * 05/05/2014 - Make an applet version
 	 * 04/11/2013 - Make it multiplayer capable after fixing config
 	 * 04/09/2014 - Spawn walking, animated mobs
@@ -78,14 +78,23 @@ public class Durian extends JPanel implements Runnable{
 		screenY = -5;
 		gameWidth = DurianFrame.FRAME_WIDTH / 50;
 		gameHeight = DurianFrame.FRAME_HEIGHT / 50 - 1;
-		config = new Config("config.txt");
 		container.addKeyListener(new PyroKeyAdapter());
+		boolean multiplayer;
+		if(!applet){
+			config = new Config("config.txt");
+			Images.fromURL(config.getString("imagesURL", "http://www.pyraetos.net/images"));
+			Sounds.fromURL(config.getString("soundsURL", "http://www.pyraetos.net/sounds"));
+			multiplayer = config.getBoolean("multiplayer", false);
+			serverHostName = config.getString("serverHostName", "pyraetos.net");
+			serverPort = config.getInt("serverPort", 1337);
+		}else{
+			Images.fromPyraetosNet();
+			Sounds.fromPyraetosNet();
+			multiplayer = true;
+			serverHostName = "pyraetos.net";
+			serverPort = 1337;
+		}
 		Sys.thread(this);
-		Images.fromURL(config.getString("imagesURL", "http://www.pyraetos.net/images"));
-		Sounds.fromURL(config.getString("soundsURL", "http://www.pyraetos.net/sounds"));
-		boolean multiplayer = applet ? true : config.getBoolean("multiplayer", false);
-		serverHostName = config.getString("serverHostName", "pyraetos.net");
-		serverPort = config.getInt("serverPort", 1337);
 		if(multiplayer)
 			Sys.thread(new ConnectThread());
 		else
@@ -93,6 +102,8 @@ public class Durian extends JPanel implements Runnable{
 	}
 	
 	private static void playOffline(){
+		if(applet)
+			Status.set("Unable to connect to the server. Offline mode is not available in applet.");
 		Tileset.setSeed(parseSeed());
 		Tileset.setEntropy(Math.abs(config.getDouble("entropy", 1.0)));
 		config.comment("entropy", "Does not affect seed. Uses absolute value.");

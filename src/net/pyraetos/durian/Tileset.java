@@ -42,10 +42,10 @@ public abstract class Tileset{
 	 * @author Pyraetos
 	 */
 	public static void pgenerate(int x, int y){
-		double value = 0;
+		double value = 0d;
 		for(int i = x - 1; i <= x + 1; i++)
 			for(int j = y - 1; j <= y + 1; j++)
-				value += pnoise(i, j);
+				value += micro(i, j);
 		tileSet(x, y, value / 9d);
 		if(Sys.chance(.0005d)){
 			Bandit bandit = new Bandit(x, y);
@@ -54,7 +54,22 @@ public abstract class Tileset{
 		}
 	}
 	
-	private static double pnoise(int x, int y){
+	private static double micro(int x, int y){
+		Random random = new Random();
+		double value = macro(x, y);
+		for(int i = x - 4; i <= x + 4; i++){
+			for(int j = y - 4; j <= y + 4; j++){
+				random.setSeed(seed * 17717171L + i * 22222223L + j * 111181111L);
+				double h = (x == i && y == j) ? 1 : Math.sqrt(Math.pow(x - i, 2) + Math.pow(y - j, 2));
+				value += (random.nextGaussian() * s) / (3d * h);
+			}
+		}
+		return value;
+	}
+	
+	private static double macro(int a, int b){
+		int x = a < 0 ? a / 16 - 1 : a / 16;
+		int y = b < 0 ? b / 16 - 1 : b / 16;
 		Random random = new Random();
 		double value = 2d;
 		for(int i = x - 4; i <= x + 4; i++){
