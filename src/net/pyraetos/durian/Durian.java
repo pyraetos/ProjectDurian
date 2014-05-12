@@ -102,8 +102,10 @@ public class Durian extends JPanel implements Runnable{
 	}
 	
 	private static void playOffline(){
-		if(applet)
+		if(applet){
 			Status.set("Unable to connect to the server. Offline mode is not available in applet.");
+			return;
+		}
 		Tileset.setSeed(parseSeed());
 		Tileset.setEntropy(Math.abs(config.getDouble("entropy", 1.0)));
 		config.comment("entropy", "Does not affect seed. Uses absolute value.");

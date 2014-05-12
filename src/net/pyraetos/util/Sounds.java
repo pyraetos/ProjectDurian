@@ -13,9 +13,11 @@ public abstract class Sounds{
 	private static Map<String, Clip> loadedSounds = new HashMap<String, Clip>();
 	private static String prefix;
 	private static String file;
-	
+
 	static{
-		fromLocal();
+		try{
+			fromLocal();
+		}catch(Exception e){}
 		file = null;
 		Sys.thread(new Runnable(){
 			public void run(){

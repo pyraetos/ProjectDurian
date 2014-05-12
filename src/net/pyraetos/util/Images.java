@@ -13,7 +13,9 @@ public abstract class Images{
 	private static String prefix;
 	
 	static{
-		fromLocal();
+		try{
+			fromLocal();
+		}catch(Exception e){}
 	}
 	
 	public static void fromPyraetosNet(){
