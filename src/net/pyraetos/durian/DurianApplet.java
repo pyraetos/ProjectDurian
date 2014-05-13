@@ -5,7 +5,7 @@ import javax.swing.JApplet;
 public class DurianApplet extends JApplet{
 	
 	public DurianApplet(){
-		setSize(DurianFrame.FRAME_WIDTH + 18, DurianFrame.FRAME_HEIGHT + 45);
+		setSize(698, 725);
 		setLayout(null);
 		setVisible(true);
 		setFocusable(true);

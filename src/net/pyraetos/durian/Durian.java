@@ -72,7 +72,7 @@ public class Durian extends JPanel implements Runnable{
 		Status.set("Loading...");
 		applet = container instanceof JApplet;
 		int width = applet ? 680 : DurianFrame.FRAME_WIDTH;
-		int height = DurianFrame.FRAME_HEIGHT;
+		int height = applet ? 680 : DurianFrame.FRAME_HEIGHT;
 		setFocusable(true);
 		setDoubleBuffered(true);
 		setBounds(0, 0, width, height - 50);
