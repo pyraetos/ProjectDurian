@@ -69,15 +69,17 @@ public class Durian extends JPanel implements Runnable{
 	
 	public Durian(Container container){
 		instance = this;
-		applet = container instanceof JApplet;
 		Status.set("Loading...");
+		applet = container instanceof JApplet;
+		int width = applet ? 680 : DurianFrame.FRAME_WIDTH;
+		int height = DurianFrame.FRAME_HEIGHT;
 		setFocusable(true);
 		setDoubleBuffered(true);
-		setBounds(0, 0, DurianFrame.FRAME_WIDTH, DurianFrame.FRAME_HEIGHT - 50);
+		setBounds(0, 0, width, height - 50);
 		screenX = -5;
 		screenY = -5;
-		gameWidth = DurianFrame.FRAME_WIDTH / 50;
-		gameHeight = DurianFrame.FRAME_HEIGHT / 50 - 1;
+		gameWidth = width / 50;
+		gameHeight = height / 50 - 1;
 		container.addKeyListener(new PyroKeyAdapter());
 		boolean multiplayer;
 		if(!applet){
@@ -103,7 +105,7 @@ public class Durian extends JPanel implements Runnable{
 	
 	private static void playOffline(){
 		if(applet){
-			Status.set("Unable to connect to the server. Offline mode is not available in applet.");
+			Status.set("Offline mode is not available in applet.");
 			return;
 		}
 		Tileset.setSeed(parseSeed());
