@@ -12,12 +12,13 @@ public class Status extends JPanel{
 	private static Status instance;
 	private JLabel label;
 	
-	public Status(){
+	public Status(boolean applet){
 		instance = this;
+		int width = applet ? 680 : DurianFrame.FRAME_WIDTH;
 		label = new JLabel();
 		setLayout(new BorderLayout());
 		this.add(label);
-		setBounds(0, DurianFrame.FRAME_HEIGHT - 50, DurianFrame.FRAME_WIDTH, 50);
+		setBounds(0, width - 50, width, 50);
 		setBackground(Color.BLACK);
 		label.setForeground(Color.WHITE);
 		label.setFont(new Font("Courier New", Font.PLAIN, 16));

@@ -21,7 +21,7 @@ public class DurianFrame extends JFrame implements ComponentListener{
 		setLayout(null);
 		setVisible(true);
 		setFocusable(true);
-		add(new Status());
+		add(new Status(false));
 		add(new Durian(this));
 		addComponentListener(this);
 	}
