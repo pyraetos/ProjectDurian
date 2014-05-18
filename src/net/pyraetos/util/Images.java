@@ -1,6 +1,7 @@
 package net.pyraetos.util;
 
 import java.awt.Image;
+
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
