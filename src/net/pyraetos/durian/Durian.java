@@ -58,6 +58,8 @@ public class Durian extends JPanel implements Runnable{
 	 * ProjectDurian TODO List
 	 * ***********************
 	 * 
+	 * add chat
+	 * add saving of tileset
 	 * add a way to cancel threads
 	 */
 	
