@@ -11,4 +11,9 @@ public class DurianApplet extends JApplet{
 		add(new Status(true));
 		add(new Durian(this));
 	}
+	
+	@Override
+	public void destroy(){
+		Durian.kill();
+	}
 }

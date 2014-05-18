@@ -21,6 +21,7 @@ import javax.swing.JPanel;
 import net.pyraetos.durian.entity.Entity;
 import net.pyraetos.durian.entity.Player;
 import net.pyraetos.durian.server.Packet;
+import net.pyraetos.durian.server.PacketAppletQuit;
 import net.pyraetos.durian.server.PacketTileRequest;
 import net.pyraetos.util.Config;
 import net.pyraetos.util.Images;
@@ -44,6 +45,7 @@ public class Durian extends JPanel implements Runnable{
 	private static Config config;
 	private static Player player;
 	private static boolean ready;
+	private static boolean running;
 	
 	//server fields
 	private static Socket server;
@@ -56,15 +58,7 @@ public class Durian extends JPanel implements Runnable{
 	 * ProjectDurian TODO List
 	 * ***********************
 	 * 
-	 * Make an applet version
-	 * Tileset changes
-	 *
-	 * Goal Timeline
-	 * ***********************
-	 * 89
-	 * 05/05/2014 - Make an applet version
-	 * 04/11/2013 - Make it multiplayer capable after fixing config
-	 * 04/09/2014 - Spawn walking, animated mobs
+	 * add a way to cancel threads
 	 */
 	
 	public Durian(Container container){
@@ -80,6 +74,7 @@ public class Durian extends JPanel implements Runnable{
 		screenY = -5;
 		gameWidth = width / 50;
 		gameHeight = height / 50 - 1;
+		running = true;
 		container.addKeyListener(new PyroKeyAdapter());
 		boolean multiplayer;
 		if(!applet){
@@ -145,7 +140,7 @@ public class Durian extends JPanel implements Runnable{
 	
 	@Override
 	public void run(){
-		while(true){
+		while(running){
 			repaint();
 			Sys.sleep(5);
 		}
@@ -216,6 +211,14 @@ public class Durian extends JPanel implements Runnable{
 		packet.process();
 	}
 
+	public static void kill(){
+		if(isOnline()){
+			Durian.send(new PacketAppletQuit());
+			disconnect();
+		}
+		running = false;
+	}
+	
 	public static void disconnect(){
 		try{
 			server.close();
@@ -223,7 +226,9 @@ public class Durian extends JPanel implements Runnable{
 		server = null;
 		queue = null;
 		Status.set("Disconnected from " + serverHostName + "!");
-		if(!applet)
+		if(applet)
+			kill();
+		else
 			DurianFrame.modifyTitle(DurianFrame.OFFLINE);
 	}
 
@@ -290,7 +295,7 @@ public class Durian extends JPanel implements Runnable{
 		@Override
 		public void run(){
 			boolean acted = false;
-			while(true){
+			while(running){
 				if(ready){
 					if(!player.isMoving()){
 						if(keysDown.contains(KeyEvent.VK_W)){

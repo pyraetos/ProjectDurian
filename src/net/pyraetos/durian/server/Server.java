@@ -61,6 +61,8 @@ public class Server extends ServerSocket implements Runnable{
 	private static void handle(Connection connection, Packet packet){
 		if(packet instanceof PacketTileRequest){
 			connection.send(((PacketTileRequest)packet).getPacketTile());
+		}else if(packet instanceof PacketAppletQuit){
+			disconnect(connection);
 		}else{
 			packet.process();
 			for(Connection c : connections){
@@ -83,10 +85,19 @@ public class Server extends ServerSocket implements Runnable{
 	
 	@Override
 	public void run(){
-		while(true){
+		server: while(true){
 			try{
 				Connection connection = new Connection(accept());
-				System.out.println(connection.getSocket().getInetAddress() + " has connected to the server!");
+				String ip = connection.getSocket().getInetAddress().toString();
+				//check to see if this IP is already connected
+				for(Connection c : connections){
+					if(c.getSocket().getInetAddress().toString().equals(ip)){
+						System.out.println(ip + " is trying to connect but is already connected!");
+						connection.close();
+						continue server;
+					}
+				}
+				System.out.println(ip + " has connected to the server!");
 				connections.add(connection);
 				new OutputThread(connection);
 				new InputThread(connection);
