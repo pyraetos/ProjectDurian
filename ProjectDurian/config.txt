@@ -1,0 +1,19 @@
+soundsURL: http://www.pyraetos.net/sounds
+
+serverHostName: localhost
+
+# Generates a square of tiles at startup with this value for the side length
+generate: 32
+
+imagesURL: http://www.pyraetos.net/images
+
+# Does not affect seed. Uses absolute value.
+entropy: 1.0d
+
+# Does not affect entropy. Special values: random
+seed: random
+
+serverPort: 1337
+
+multiplayer: false
+
