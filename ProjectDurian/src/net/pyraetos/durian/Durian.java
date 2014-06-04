@@ -32,7 +32,7 @@ import net.pyraetos.util.Sys;
 @SuppressWarnings("serial")
 public class Durian extends JPanel implements Runnable{
 
-	//instance fields
+	//instance fields ya dig
 	private static Durian instance;
 	
 	//window fields
