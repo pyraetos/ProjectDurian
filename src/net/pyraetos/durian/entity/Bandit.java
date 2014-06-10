@@ -2,6 +2,7 @@ package net.pyraetos.durian.entity;
 
 import net.pyraetos.util.Sys;
 
+@SuppressWarnings("serial")
 public class Bandit extends MovingEntity implements Runnable{
 	
 	public Bandit(double x, double y){

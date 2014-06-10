@@ -7,6 +7,7 @@ import java.util.Set;
 import net.pyraetos.util.Images;
 import net.pyraetos.util.Sys;
 
+@SuppressWarnings("serial")
 public abstract class Entity implements Serializable{
 	
 	protected int uid;

@@ -4,6 +4,7 @@ import net.pyraetos.durian.ProjectDurian;
 import net.pyraetos.durian.entity.Entity;
 import net.pyraetos.util.Sounds;
 
+@SuppressWarnings("serial")
 public class PacketKill implements Packet{
 
 	private int uid;

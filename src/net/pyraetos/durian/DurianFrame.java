@@ -5,6 +5,7 @@ import java.awt.event.ComponentListener;
 
 import javax.swing.JFrame;
 
+@SuppressWarnings("serial")
 public class DurianFrame extends JFrame implements ComponentListener{
 
 	public static final int FRAME_WIDTH = 1000;

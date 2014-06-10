@@ -4,6 +4,7 @@ import net.pyraetos.durian.ProjectDurian;
 import net.pyraetos.durian.Tileset;
 import net.pyraetos.util.Sounds;
 
+@SuppressWarnings("serial")
 public class PacketCut implements Packet{
 
 	private int x;

@@ -29,9 +29,10 @@ import net.pyraetos.util.Point;
 import net.pyraetos.util.Sounds;
 import net.pyraetos.util.Sys;
 
+@SuppressWarnings("serial")
 public class Durian extends JPanel implements Runnable{
 
-	//instance
+	//instance fields ya dig
 	private static Durian instance;
 	
 	//window fields

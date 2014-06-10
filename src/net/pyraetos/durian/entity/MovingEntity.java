@@ -7,6 +7,7 @@ import net.pyraetos.durian.server.PacketMove;
 import net.pyraetos.durian.server.Server;
 import net.pyraetos.util.Sys;
 
+@SuppressWarnings("serial")
 public abstract class MovingEntity extends Entity {
 
 	protected byte direction = Sys.SOUTH;

@@ -2,6 +2,7 @@ package net.pyraetos.durian.server;
 
 import net.pyraetos.durian.entity.Entity;
 
+@SuppressWarnings("serial")
 public class PacketEntity implements Packet{
 
 	private Entity entity;

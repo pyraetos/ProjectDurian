@@ -2,6 +2,7 @@ package net.pyraetos.durian.server;
 
 import net.pyraetos.durian.Tileset;
 
+@SuppressWarnings("serial")
 public class PacketTileRequest implements Packet{
 
 	private int x;

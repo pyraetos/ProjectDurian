@@ -3,6 +3,7 @@ package net.pyraetos.durian.server;
 import net.pyraetos.durian.entity.Entity;
 import net.pyraetos.durian.entity.MovingEntity;
 
+@SuppressWarnings("serial")
 public class PacketMove implements Packet{
 
 	private int uid;
