@@ -4,6 +4,7 @@ import net.pyraetos.durian.Durian;
 import net.pyraetos.durian.entity.Entity;
 import net.pyraetos.durian.entity.Player;
 
+@SuppressWarnings("serial")
 public class PacketPlayer implements Packet{
 
 	private Player player;

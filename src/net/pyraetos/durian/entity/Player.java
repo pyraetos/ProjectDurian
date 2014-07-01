@@ -7,6 +7,7 @@ import net.pyraetos.durian.server.PacketCut;
 import net.pyraetos.durian.server.PacketKill;
 import net.pyraetos.util.Sounds;
 
+@SuppressWarnings("serial")
 public class Player extends MovingEntity{
 	
 	public Player(double x, double y, boolean focused){

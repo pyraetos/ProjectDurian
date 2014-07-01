@@ -1,5 +1,6 @@
 package net.pyraetos.durian.server;
 
+@SuppressWarnings("serial")
 public class PacketAppletQuit implements Packet{
 
 	public PacketAppletQuit(){

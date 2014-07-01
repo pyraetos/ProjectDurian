@@ -2,6 +2,7 @@ package net.pyraetos.durian;
 
 import javax.swing.JApplet;
 
+@SuppressWarnings("serial")
 public class DurianApplet extends JApplet{
 	
 	public DurianApplet(){
