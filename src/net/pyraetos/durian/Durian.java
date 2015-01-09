@@ -339,6 +339,7 @@ public class Durian extends JPanel implements Runnable{
 				Sys.thread(new InputThread());
 				Sys.thread(new OutputThread());
 			}catch(Exception e){
+				e.printStackTrace();
 				disconnect();
 				playOffline();
 			}
