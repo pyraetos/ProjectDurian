@@ -42,6 +42,7 @@ public class Durian extends JPanel implements Runnable{
 	private static double screenY;
 	private static double gameWidth;
 	private static double gameHeight;
+	private static Container container;
 	
 	//game fields
 	private static Config config;
@@ -69,6 +70,7 @@ public class Durian extends JPanel implements Runnable{
 		instance = this;
 		Status.set("Loading...");
 		applet = container instanceof JApplet;
+		Durian.container = container;
 		int width = applet ? 680 : DurianFrame.FRAME_WIDTH;
 		int height = applet ? 680 : DurianFrame.FRAME_HEIGHT;
 		setFocusable(true);
@@ -154,6 +156,7 @@ public class Durian extends JPanel implements Runnable{
 	@Override
 	public void paint(Graphics g){
 		super.paint(g);
+		container.requestFocus();
 		if(ready){
 			drawTileset(g);
 			drawEntities(g);
