@@ -3,6 +3,7 @@ package net.pyraetos.durian;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 
 @SuppressWarnings("serial")
@@ -17,15 +18,17 @@ public class DurianFrame extends JFrame implements ComponentListener{
 	public DurianFrame(){
 		instance = this;
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setBounds(500, 100, FRAME_WIDTH + 18, FRAME_HEIGHT + 95);
 		setTitle(OFFLINE);
-		setLayout(null);
+		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		setVisible(true);
 		setFocusable(true);
-		add(new Status(false));
-		add(new Durian(this));
+		Status s = new Status(false);
+		getContentPane().add(new Durian(getContentPane()));
+		getContentPane().add(s);
 		addComponentListener(this);
+		pack();
 		componentResized(null);
+		revalidate();
 	}
 
 	public static void modifyTitle(String title){
@@ -34,8 +37,8 @@ public class DurianFrame extends JFrame implements ComponentListener{
 	
 	@Override
 	public void componentResized(ComponentEvent e){
-		Durian.setGameSize(getWidth() - 18, getHeight() - 95);
-		Status.update(getHeight() - 95, getWidth() - 18);
+		Durian.setGameSize(getWidth() - 18, getHeight() - 125);
+		Status.update(getWidth() - 18);
 	}
 
 	@Override

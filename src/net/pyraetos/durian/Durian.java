@@ -1,6 +1,7 @@
 package net.pyraetos.durian;
 
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -72,7 +73,7 @@ public class Durian extends JPanel implements Runnable{
 		int height = applet ? 680 : DurianFrame.FRAME_HEIGHT;
 		setFocusable(true);
 		setDoubleBuffered(true);
-		setBounds(0, 0, width, height - 50);
+		setPreferredSize(new Dimension(width, height-95));
 		screenX = -5;
 		screenY = -5;
 		gameWidth = width / 50;

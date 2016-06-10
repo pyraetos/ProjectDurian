@@ -2,6 +2,7 @@ package net.pyraetos.durian;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 
 import javax.swing.JLabel;
@@ -25,8 +26,10 @@ public class Status extends JPanel{
 		label.setFont(new Font("Courier New", Font.PLAIN, 16));
 	}
 	
-	public static void update(int y, int width){
-		instance.setBounds(0, y, width, instance.getHeight());
+	public static void update(int width){
+		instance.setPreferredSize(new Dimension(width, 55));
+		instance.setMaximumSize(new Dimension(width, 55));
+		instance.setMinimumSize(new Dimension(width, 55));
 	}
 	
 	public static void set(String status){
