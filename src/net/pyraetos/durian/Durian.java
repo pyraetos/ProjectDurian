@@ -78,8 +78,8 @@ public class Durian extends JPanel implements Runnable{
 		setPreferredSize(new Dimension(width, height-95));
 		screenX = -5;
 		screenY = -5;
-		gameWidth = width / 50;
-		gameHeight = height / 50 + 1;
+		gameWidth = (double)width / 50d;
+		gameHeight = (double)height / 50d + 1d;
 		running = true;
 		container.addKeyListener(new PyroKeyAdapter());
 		container.requestFocus();
@@ -141,8 +141,9 @@ public class Durian extends JPanel implements Runnable{
 
 	static void setGameSize(int width, int height){
 		instance.setSize(width, height);
-		gameHeight = ((double)height) / 50d;
+		gameHeight = ((double)height) / 50d + 1d;
 		gameWidth = ((double)width) / 50d;
+		container.revalidate();
 	}
 	
 	@Override
@@ -169,8 +170,8 @@ public class Durian extends JPanel implements Runnable{
 	}
 	
 	private void drawTileset(Graphics g){
-		for(int x = (int)screenX - 1; x <= (int)screenX + gameWidth; x++){
-			for(int y = (int)screenY - 1; y <= (int)screenY + gameHeight; y++){
+		for(int x = (int)screenX - 1; x <= (int)screenX + gameWidth + 6; x++){
+			for(int y = (int)screenY - 1; y <= (int)screenY + gameHeight + 6; y++){
 				Point point = new Point(x, y);
 				byte type = Tileset.getTile(point);
 				if(type == Tileset.NULL){
