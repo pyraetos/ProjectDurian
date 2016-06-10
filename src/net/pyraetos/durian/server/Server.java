@@ -18,11 +18,21 @@ public class Server extends ServerSocket implements Runnable{
 	private static Set<Connection> connections;
 	private static Config config;
 	
+	@SuppressWarnings("resource")
 	public static void start(){
 		try{
 			config = new Config("serverConfig.txt");
 			new Server(config.getInt("port", 1337));
 		} catch(IOException e){
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void finalize(){
+		try {
+			close();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
