@@ -17,7 +17,7 @@ public class DurianFrame extends JFrame implements ComponentListener{
 	public DurianFrame(){
 		instance = this;
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setBounds(500, 100, FRAME_WIDTH + 18, FRAME_HEIGHT + 45);
+		setBounds(500, 100, FRAME_WIDTH + 18, FRAME_HEIGHT + 95);
 		setTitle(OFFLINE);
 		setLayout(null);
 		setVisible(true);
@@ -25,6 +25,7 @@ public class DurianFrame extends JFrame implements ComponentListener{
 		add(new Status(false));
 		add(new Durian(this));
 		addComponentListener(this);
+		componentResized(null);
 	}
 
 	public static void modifyTitle(String title){
