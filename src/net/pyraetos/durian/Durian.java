@@ -77,9 +77,10 @@ public class Durian extends JPanel implements Runnable{
 		screenX = -5;
 		screenY = -5;
 		gameWidth = width / 50;
-		gameHeight = height / 50 - 1;
+		gameHeight = height / 50 + 1;
 		running = true;
 		container.addKeyListener(new PyroKeyAdapter());
+		container.requestFocus();
 		boolean multiplayer;
 		if(!applet){
 			config = new Config("config.txt");
